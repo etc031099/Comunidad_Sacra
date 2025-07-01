@@ -1,0 +1,135 @@
+#:kivy 1.0
+
+<CrearReunionScreen>:
+    name: "crear_reunion"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+
+            # Encabezado mejorado
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "reuniones"
+                    pos_hint: {"center_y": 0.5}
+
+                MDIcon:
+                    icon: "calendar-edit" if root.modo_edicion else "calendar-plus"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    text: "Editar Reunión" if root.modo_edicion else "Nueva Reunión"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            ScrollView:
+                size_hint: 1, 1
+                bar_width: dp(4)
+                bar_color: 0.2, 0.6, 0.86, 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(15)
+                    padding: dp(15)
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        spacing: dp(15)
+                        radius: [16]
+                        elevation: 4
+                        size_hint_y: None
+                        height: self.minimum_height
+                        md_bg_color: 1, 1, 1, 1  
+                        size_hint_x: 1
+
+                        MDLabel:
+                            text: "Datos de la Reunión"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            halign: "center"
+                            size_hint_y: None
+                            height: dp(40)
+
+                        MDTextField:
+                            id: input_fecha
+                            hint_text: "Selecciona la fecha"
+                            icon_right: "calendar"
+                            readonly: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+                            on_focus: if self.focus: root.abrir_calendario()
+
+                        MDTextField:
+                            id: input_titulo
+                            hint_text: "Título de la reunión"
+                            helper_text: "Ejemplo: Asamblea mensual"
+                            helper_text_mode: "on_focus"
+                            icon_right: "format-title"
+                            mode: "rectangle"
+                            multiline: False
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: input_hora_inicio
+                            hint_text: "Hora de inicio"
+                            icon_right: "clock"
+                            readonly: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+                            on_focus: if self.focus: root.abrir_reloj_inicio()
+
+                        MDTextField:
+                            id: input_descripcion
+                            hint_text: "Descripción de la reunión"
+                            helper_text: "Opcional: detalles sobre la reunión"
+                            helper_text_mode: "on_focus"
+                            icon_right: "text"
+                            mode: "rectangle"
+                            multiline: True
+                            size_hint_y: None
+                            height: dp(100)
+
+                        MDRaisedButton:
+                            text: "Guardar Cambios" if root.modo_edicion else "Guardar Reunión"
+                            md_bg_color: 0.2, 0.6, 0.86, 1
+                            pos_hint: {"center_x": 0.5}
+                            on_release: root.guardar_cambios()

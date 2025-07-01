@@ -1,0 +1,637 @@
+#:kivy 1.0
+
+<DashboardScreen>:
+    name: "dashboard"
+
+    FloatLayout:
+        # Fondo con gradiente
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1  # Azul oscuro base
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8  # Gradiente azul medio
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(25)
+            spacing: dp(20)
+
+            # Header mejorado
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: dp(80)
+
+                MDCard:
+                    orientation: "horizontal"
+                    padding: dp(20)
+                    md_bg_color: 1, 1, 1, 0.1
+                    elevation: 0
+                    radius: dp(15)
+
+                    MDIcon:
+                        icon: "view-dashboard-variant"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        font_size: "32sp"
+                        size_hint_x: None
+                        width: dp(50)
+                        pos_hint: {"center_y": 0.5}
+
+                    MDLabel:
+                        text: "Panel de Control"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        font_style: "H4"
+                        bold: True
+                        pos_hint: {"center_y": 0.5}
+
+                Widget:
+                    size_hint_x: 0.3
+
+                MDCard:
+                    orientation: "horizontal"
+                    padding: dp(15)
+                    md_bg_color: 0.2, 0.7, 0.9, 0.2
+                    elevation: 0
+                    radius: dp(25)
+                    size_hint_x: None
+                    width: dp(200)
+                    
+                    MDIcon:
+                        icon: "account-circle-outline"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        font_size: "24sp"
+                        size_hint_x: None
+                        width: dp(30)
+                        pos_hint: {"center_y": 0.5}
+
+                    MDLabel:
+                        text: "Administrador"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 0.9
+                        font_style: "Subtitle1"
+                        pos_hint: {"center_y": 0.5}
+
+            # --- Contenido Principal Dividido ---
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: dp(25)
+
+                # --- Columna Izquierda: Botones de Navegación Agrupados ---
+                ScrollView:
+                    size_hint_x: 0.65
+                    bar_width: dp(8)
+                    bar_color: 0.2, 0.6, 0.86, 1
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: dp(20)
+                        size_hint_y: None
+                        height: self.minimum_height
+                        padding: [dp(5), dp(10)]
+
+                        # === SECCIÓN 1: REGISTRO DIARIO ===
+                        MDCard:
+                            orientation: "vertical"
+                            padding: [dp(15), dp(10), dp(15), dp(20)]
+                            md_bg_color: 0.1, 0.3, 0.5, 0.3
+                            elevation: 2
+                            radius: dp(15)
+                            size_hint_y: None
+                            height: dp(220)
+                            line_color: 1, 1, 1, 0.1
+                            line_width: 1
+
+                            # Título de sección rediseñado
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(10)
+                                size_hint_y: None
+                                height: dp(40)
+                                MDIcon:
+                                    icon: "clipboard-text-clock-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 0.9
+                                    pos_hint: {"center_y": 0.5}
+                                MDLabel:
+                                    text: "REGISTRO DIARIO"
+                                    font_style: "Button"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+                                    bold: True
+                                    size_hint_y: None
+                                    height: self.texture_size[1]
+                                    pos_hint: {"center_y": 0.5}
+                            MDSeparator:
+                                height: dp(1)
+                                md_bg_color: 1, 1, 1, 0.2
+
+                            # Botones de la sección
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(15)
+                                padding: [0, dp(10), 0, 0]
+                                size_hint_y: None
+                                height: dp(160)
+                                pos_hint: {"center_x": 0.5}
+
+                                DashboardCard:
+                                    card_icon: "clipboard-text-outline"
+                                    card_title: "Asistencia a\nReuniones"
+                                    card_subtitle: "Registrar"
+                                    card_color: 0.2, 0.6, 0.86, 1
+                                    on_release: app.root.current = "asistencia"
+
+                                DashboardCard:
+                                    card_icon: "clipboard-check-multiple-outline"
+                                    card_title: "Asistencia a\nFaenas"
+                                    card_subtitle: "Registrar"
+                                    card_color: 0.67, 0.16, 0.76, 1
+                                    on_release: app.root.current = "asistencia_faena"
+
+                                DashboardCard:
+                                    card_icon: "file-document-edit-outline"
+                                    card_title: "Justificaciones"
+                                    card_subtitle: "Gestión"
+                                    card_color: 0.96, 0.26, 0.21, 1
+                                    on_release: app.root.current = "justificaciones"
+
+                        # === SECCIÓN 2: GESTIÓN DE MIEMBROS ===
+                        MDCard:
+                            orientation: "vertical"
+                            padding: [dp(15), dp(10), dp(15), dp(20)]
+                            md_bg_color: 0.1, 0.5, 0.3, 0.3
+                            elevation: 2
+                            radius: dp(15)
+                            size_hint_y: None
+                            height: dp(220)
+                            line_color: 1, 1, 1, 0.1
+                            line_width: 1
+
+                            # Título de sección rediseñado
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(10)
+                                size_hint_y: None
+                                height: dp(40)
+                                MDIcon:
+                                    icon: "account-group-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 0.9
+                                    pos_hint: {"center_y": 0.5}
+                                MDLabel:
+                                    text: "GESTIÓN DE MIEMBROS"
+                                    font_style: "Button"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+                                    bold: True
+                                    size_hint_y: None
+                                    height: self.texture_size[1]
+                                    pos_hint: {"center_y": 0.5}
+                            MDSeparator:
+                                height: dp(1)
+                                md_bg_color: 1, 1, 1, 0.2
+
+                            # Botones de la sección
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(15)
+                                padding: [0, dp(10), 0, 0]
+                                size_hint_y: None
+                                height: dp(160)
+                                pos_hint: {"center_x": 0.5}
+
+                                DashboardCard:
+                                    card_icon: "account-group"
+                                    card_title: "Miembros"
+                                    card_subtitle: "Gestión"
+                                    card_color: 0.3, 0.69, 0.31, 1
+                                    on_release: app.root.current = "miembros"
+
+                                DashboardCard:
+                                    card_icon: "history"
+                                    card_title: "Historial"
+                                    card_subtitle: "Participación"
+                                    card_color: 0.18, 0.36, 0.56, 1
+                                    on_release: app.root.current = "historial_miembro"
+
+                                Widget:
+                                    size_hint_x: 0.33
+
+                        # === SECCIÓN 3: ADMINISTRACIÓN DE EVENTOS ===
+                        MDCard:
+                            orientation: "vertical"
+                            padding: [dp(15), dp(10), dp(15), dp(20)]
+                            md_bg_color: 0.5, 0.3, 0.1, 0.3
+                            elevation: 2
+                            radius: dp(15)
+                            size_hint_y: None
+                            height: dp(220)
+                            line_color: 1, 1, 1, 0.1
+                            line_width: 1
+
+                            # Título de sección rediseñado
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(10)
+                                size_hint_y: None
+                                height: dp(40)
+                                MDIcon:
+                                    icon: "calendar-month-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 0.9
+                                    pos_hint: {"center_y": 0.5}
+                                MDLabel:
+                                    text: "ADMINISTRACIÓN DE EVENTOS"
+                                    font_style: "Button"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+                                    bold: True
+                                    size_hint_y: None
+                                    height: self.texture_size[1]
+                                    pos_hint: {"center_y": 0.5}
+                            MDSeparator:
+                                height: dp(1)
+                                md_bg_color: 1, 1, 1, 0.2
+
+                            # Botones de la sección
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(15)
+                                padding: [0, dp(10), 0, 0]
+                                size_hint_y: None
+                                height: dp(160)
+                                pos_hint: {"center_x": 0.5}
+
+                                DashboardCard:
+                                    card_icon: "calendar-text"
+                                    card_title: "Reuniones"
+                                    card_subtitle: "Administrar"
+                                    card_color: 0.2, 0.6, 0.86, 1
+                                    on_release: app.root.current = "reuniones"
+
+                                DashboardCard:
+                                    card_icon: "hammer-wrench"
+                                    card_title: "Faenas"
+                                    card_subtitle: "Administrar"
+                                    card_color: 0.96, 0.61, 0.13, 1
+                                    on_release: app.root.current = "faenas"
+
+                                Widget:
+                                    size_hint_x: 0.33
+
+                        # === SECCIÓN 4: CONTROL Y SEGUIMIENTO ===
+                        MDCard:
+                            orientation: "vertical"
+                            padding: [dp(15), dp(10), dp(15), dp(20)]
+                            md_bg_color: 0.5, 0.1, 0.3, 0.3
+                            elevation: 2
+                            radius: dp(15)
+                            size_hint_y: None
+                            height: dp(220)
+                            line_color: 1, 1, 1, 0.1
+                            line_width: 1
+
+                            # Título de sección rediseñado
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(10)
+                                size_hint_y: None
+                                height: dp(40)
+                                MDIcon:
+                                    icon: "scale-balance"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 0.9
+                                    pos_hint: {"center_y": 0.5}
+                                MDLabel:
+                                    text: "CONTROL Y SEGUIMIENTO"
+                                    font_style: "Button"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+                                    bold: True
+                                    size_hint_y: None
+                                    height: self.texture_size[1]
+                                    pos_hint: {"center_y": 0.5}
+                            MDSeparator:
+                                height: dp(1)
+                                md_bg_color: 1, 1, 1, 0.2
+
+                            # Botones de la sección
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(15)
+                                padding: [0, dp(10), 0, 0]
+                                size_hint_y: None
+                                height: dp(160)
+                                pos_hint: {"center_x": 0.5}
+
+                                DashboardCard:
+                                    card_icon: "gavel"
+                                    card_title: "Penalizaciones"
+                                    card_subtitle: "Control"
+                                    card_color: 0.96, 0.26, 0.21, 1
+                                    on_release: app.root.current = "penalizaciones"
+
+                                DashboardCard:
+                                    card_icon: "chart-bar"
+                                    card_title: "Reportes"
+                                    card_subtitle: "Gráficas"
+                                    card_color: 0.2, 0.7, 0.3, 1
+                                    on_release: app.root.current = "reportes"
+
+                                Widget:
+                                    size_hint_x: 0.33
+
+                        # === SECCIÓN 5: COMUNICACIÓN ===
+                        MDCard:
+                            orientation: "vertical"
+                            padding: [dp(15), dp(10), dp(15), dp(20)]
+                            md_bg_color: 0.3, 0.1, 0.5, 0.3
+                            elevation: 2
+                            radius: dp(15)
+                            size_hint_y: None
+                            height: dp(220)
+                            line_color: 1, 1, 1, 0.1
+                            line_width: 1
+
+                            # Título de sección rediseñado
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(10)
+                                size_hint_y: None
+                                height: dp(40)
+                                MDIcon:
+                                    icon: "bell-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 0.9
+                                    pos_hint: {"center_y": 0.5}
+                                MDLabel:
+                                    text: "COMUNICACIÓN"
+                                    font_style: "Button"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+                                    bold: True
+                                    size_hint_y: None
+                                    height: self.texture_size[1]
+                                    pos_hint: {"center_y": 0.5}
+                            MDSeparator:
+                                height: dp(1)
+                                md_bg_color: 1, 1, 1, 0.2
+
+                            # Botones de la sección
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: dp(15)
+                                padding: [0, dp(10), 0, 0]
+                                size_hint_y: None
+                                height: dp(160)
+                                pos_hint: {"center_x": 0.5}
+
+                                DashboardCard:
+                                    card_icon: "bell"
+                                    card_title: "Notificaciones"
+                                    card_subtitle: "Múltiples"
+                                    card_color: 0.18, 0.36, 0.56, 1
+                                    on_release: app.root.current = "notificaciones"
+
+                                DashboardCard:
+                                    card_icon: "logout-variant"
+                                    card_title: "Cerrar"
+                                    card_subtitle: "Sesión"
+                                    card_color: 0.96, 0.26, 0.21, 1
+                                    on_release: app.root.current = "login"
+
+                                Widget:
+                                    size_hint_x: 0.33
+                
+                # --- Columna Derecha: KPIs de Reconocimiento ---
+                MDBoxLayout:
+                    id: dashboard_kpi_section
+                    orientation: 'vertical'
+                    size_hint_x: 0.35
+                    spacing: dp(20)
+                    opacity: 0 # Para animación
+
+                    MDRelativeLayout:
+                        size_hint_y: None
+                        height: dp(40)
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            adaptive_size: True
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            spacing: dp(10)
+
+                            MDIcon:
+                                icon: "trophy-variant-outline"
+                                font_size: "24sp"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                text: "Logros del Mes"
+                                font_style: "H6"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                adaptive_width: True
+                                pos_hint: {"center_y": 0.5}
+
+                    MDCard:
+                        orientation: "horizontal"
+                        md_bg_color: 0.9, 0.9, 1, 1
+                        padding: dp(15)
+                        spacing: dp(15)
+                        radius: [15]
+                        elevation: 4
+                        MDIcon:
+                            icon: "trophy-award"
+                            font_size: "40sp"
+                            theme_text_color: "Custom"
+                            text_color: 0.2, 0.2, 0.8, 1
+                            size_hint_x: None
+                            width: self.font_size
+                            pos_hint: {"center_y": 0.5}
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            adaptive_height: True
+                            pos_hint: {"center_y": 0.5}
+                            MDLabel:
+                                text: "MIEMBRO DEL MES"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                halign: "left"
+                                adaptive_height: True
+                            MDLabel:
+                                id: dashboard_kpi_miembro_mes
+                                text: "-"
+                                font_style: "Subtitle1"
+                                bold: True
+                                theme_text_color: "Primary"
+                                halign: "left"
+                                adaptive_height: True
+
+                    MDCard:
+                        orientation: "horizontal"
+                        md_bg_color: 0.9, 1, 0.9, 1
+                        padding: dp(15)
+                        spacing: dp(15)
+                        radius: [15]
+                        elevation: 4
+                        MDIcon:
+                            icon: "check-decagram"
+                            font_size: "40sp"
+                            theme_text_color: "Custom"
+                            text_color: 0.2, 0.8, 0.2, 1
+                            size_hint_x: None
+                            width: self.font_size
+                            pos_hint: {"center_y": 0.5}
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            adaptive_height: True
+                            pos_hint: {"center_y": 0.5}
+                            MDLabel:
+                                text: "ASISTENCIA PERFECTA"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                halign: "left"
+                                adaptive_height: True
+                            MDLabel:
+                                id: dashboard_kpi_asistencia_perfecta
+                                text: "- Miembros"
+                                font_style: "Subtitle1"
+                                bold: True
+                                theme_text_color: "Primary"
+                                halign: "left"
+                                adaptive_height: True
+                    
+                    MDCard:
+                        orientation: "horizontal"
+                        md_bg_color: 1, 0.9, 0.9, 1
+                        padding: dp(15)
+                        spacing: dp(15)
+                        radius: [15]
+                        elevation: 4
+                        MDIcon:
+                            icon: "shield-check-outline"
+                            font_size: "40sp"
+                            theme_text_color: "Custom"
+                            text_color: 0.8, 0.2, 0.2, 1
+                            size_hint_x: None
+                            width: self.font_size
+                            pos_hint: {"center_y": 0.5}
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            adaptive_height: True
+                            pos_hint: {"center_y": 0.5}
+                            MDLabel:
+                                text: "CERO PENALIZACIONES"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                halign: "left"
+                                adaptive_height: True
+                            MDLabel:
+                                id: dashboard_kpi_cero_penalizaciones
+                                text: "- Miembros"
+                                font_style: "Subtitle1"
+                                bold: True
+                                theme_text_color: "Primary"
+                                halign: "left"
+                                adaptive_height: True
+
+                    Widget: # Espaciador para empujar hacia arriba
+
+            # Footer con información adicional
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 0, 0, 0, 0.2
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(60)
+
+                MDIcon:
+                    icon: "information-outline"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.7
+                    font_size: "20sp"
+                    size_hint_x: None
+                    width: dp(30)
+
+                MDLabel:
+                    text: "Sistema de Gestión Comunitaria v2.1 - Selecciona una opción para continuar"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.8
+
+<DashboardCard@MDCard>:
+    card_icon: ""
+    card_title: ""
+    card_subtitle: ""
+    card_color: 0.2, 0.6, 0.86, 1
+    
+    orientation: 'vertical'
+    padding: dp(20)
+    size_hint: None, None
+    size: dp(220), dp(160)
+    ripple_behavior: True
+    md_bg_color: root.card_color
+    elevation: 8
+    radius: dp(15)
+    
+    # Efecto hover (simulado con animación)
+    canvas.after:
+        Color:
+            rgba: 1, 1, 1, 0.1 if self.state == "down" else 0
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(15)] * 4
+
+    MDFloatLayout:
+        # Icono principal
+        MDIcon:
+            icon: root.card_icon
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: "48sp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.73}
+
+        # Título
+        MDLabel:
+            text: root.card_title
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_style: "H6"
+            bold: True
+            pos_hint: {"center_x": 0.5, "center_y": 0.34}
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        # Subtítulo
+        MDLabel:
+            text: root.card_subtitle
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 0.8
+            font_style: "Caption"
+            pos_hint: {"center_x": 0.5, "center_y": 0.10}
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        # Indicador de acción
+        MDIcon:
+            icon: "chevron-right"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 0.6
+            font_size: "20sp"
+            pos_hint: {"right": 0.95, "center_y": 0.5}

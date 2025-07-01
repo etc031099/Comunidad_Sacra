@@ -1,0 +1,252 @@
+#:kivy 1.0
+
+<ReunionCard@MDCard>:
+    reunion_data: None
+    orientation: "horizontal"
+    padding: (16, 8)
+    size_hint_y: None
+    height: "60dp"
+    md_bg_color: (1, 1, 1, 1)
+    elevation: 0
+    radius: [8]
+    ripple_behavior: True
+
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint_x: 0.8
+        
+        MDLabel:
+            text: f"[b]{root.reunion_data.get('titulo', '')}[/b]" if root.reunion_data else ""
+            markup: True
+            font_style: "Subtitle1"
+            theme_text_color: "Primary"
+            size_hint_y: None
+            height: 24
+
+        MDLabel:
+            text: f"Fecha: {root.reunion_data.get('fecha', '')} | Hora: {root.reunion_data.get('hora_inicio', '')}" if root.reunion_data else ""
+            theme_text_color: "Hint"
+            font_style: "Caption"
+            size_hint_y: None
+            height: 20
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: 0.2
+        spacing: 0
+        padding: [0,0,0,0]
+
+        MDIconButton:
+            icon: "eye"
+            on_release: app.root.get_screen('reuniones').mostrar_detalles_reunion(root.reunion_data) if root.reunion_data else None
+
+        MDIconButton:
+            icon: "pencil"
+            on_release: app.root.get_screen('reuniones').ir_a_reunion_form_editar(root.reunion_data) if root.reunion_data else None
+            
+        MDIconButton:
+            icon: "delete"
+            on_release: app.root.get_screen('reuniones').eliminar_reunion(root.reunion_data) if root.reunion_data else None
+            theme_text_color: "Custom"
+            text_color: (1,0,0,1)
+
+<ReunionesScreen>:
+    name: "reuniones"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+            md_bg_color: 0, 0, 0, 0
+
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "dashboard"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "calendar"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Gestión de Reuniones"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                size_hint_y: None
+                height: dp(100)
+                pos_hint: {"center_x": 0.5}
+                padding: dp(40), dp(10)
+                spacing: dp(32)
+                canvas.before:
+                    Color:
+                        rgba: 0.10, 0.32, 0.55, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(28), dp(28), dp(28), dp(28)]
+                    Color:
+                        rgba: 0, 0, 0, 0.10
+                    Rectangle:
+                        pos: self.x, self.y - dp(8)
+                        size: self.width, dp(16)
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.7
+                    size_hint_y: None
+                    height: dp(60)
+                    elevation: 0
+                    md_bg_color: 1, 1, 1, 1
+                    radius: [dp(20), dp(20), dp(20), dp(20)]
+                    padding: [dp(8), 0, dp(8), 0]
+                    MDTextField:
+                        id: buscar_reunion
+                        hint_text: "Buscar por título, fecha o descripción"
+                        icon_right: "magnify"
+                        on_text: root.disparar_busqueda(self.text)
+                        mode: "rectangle"
+                        line_color_focus: 0.10, 0.32, 0.55, 1
+                        line_color_normal: 0.7, 0.7, 0.7, 1
+                        size_hint_x: 1
+                        size_hint_y: 1
+                        font_size: "22sp"
+                        hint_text_color: 0.4, 0.4, 0.5, 1
+                        icon_right_color: 0.10, 0.32, 0.55, 1
+                        pos_hint: {"center_y": 0.5}
+                Widget:
+                    size_hint_x: 0.05
+                MDRaisedButton:
+                    text: "NUEVA REUNIÓN"
+                    icon: "calendar-plus"
+                    md_bg_color: 0.18, 0.67, 0.89, 1
+                    on_release: root.ir_a_reunion_form()
+                    elevation: 8
+                    size_hint_x: 0.22
+                    size_hint_y: None
+                    height: dp(60)
+                    pos_hint: {"center_y": 0.5}
+                    font_style: "Button"
+                    text_color: 1, 1, 1, 1
+                    icon_color: 1, 1, 1, 1
+                    icon_size: dp(32)
+                    padding: (dp(24), dp(0), dp(24), dp(0))
+                    canvas.before:
+                        Color:
+                            rgba: 0.18, 0.67, 0.89, 1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20), dp(20), dp(20), dp(20)]
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                pos_hint: {"center_x": 0.5}
+                padding: dp(8), dp(0), dp(8), dp(2)
+                spacing: dp(8)
+                MDIcon:
+                    icon: "format-list-bulleted"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "26sp"
+                    size_hint_x: None
+                    width: dp(28)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Lista de reuniones"
+                    font_style: "Subtitle1"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    size_hint_x: 0.7
+                    halign: "left"
+                    valign: "middle"
+                    height: self.texture_size[1] + dp(10)
+                Widget:
+                    size_hint_x: 0.05
+                MDIcon:
+                    icon: "counter"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "22sp"
+                    size_hint_x: None
+                    width: dp(22)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    id: contador_reuniones
+                    text: f"Total reuniones: {len(lista_reuniones.data)}"
+                    font_style: "Subtitle2"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    halign: "left"
+                    valign: "middle"
+                    size_hint_x: 0.18
+                    height: self.texture_size[1] + dp(5)
+
+            MDCard:
+                padding: dp(12), dp(4), dp(12), dp(12)
+                elevation: 2
+                md_bg_color: 1, 1, 1, 1
+                size_hint_x: 0.9
+                pos_hint: {"center_x": 0.5}
+                size_hint_y: None
+                height: dp(440)
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(12), dp(12), dp(12), dp(12)]
+                
+                RecycleView:
+                    id: lista_reuniones
+                    viewclass: 'ReunionCard'
+                    
+                    RecycleBoxLayout:
+                        padding: [dp(8), dp(8), dp(8), dp(8)]
+                        default_size: None, dp(60)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+                        spacing: dp(4)
+                
+                MDSpinner:
+                    id: spinner
+                    size_hint: None, None
+                    size: dp(46), dp(46)
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    active: False 

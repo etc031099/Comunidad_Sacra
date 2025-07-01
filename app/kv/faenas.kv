@@ -1,0 +1,293 @@
+#:kivy 1.0
+
+# Estilos base para widgets con bordes redondeados
+<MDCard>:
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color if self.md_bg_color else (1, 1, 1, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(8), dp(8), dp(8), dp(8)]
+
+<MDRaisedButton>:
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color if self.md_bg_color else (1, 1, 1, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(8), dp(8), dp(8), dp(8)]
+
+<FaenasScreen>:
+    name: "faenas"
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+            # ENCABEZADO ESTILO ASISTENCIA
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "dashboard"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "shovel"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Gestión de Faenas"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+            # PANEL FINAL, LIMPIO Y ORDENADO DE BUSCADOR Y BOTÓN (AJUSTADO)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                size_hint_y: None
+                height: dp(100)
+                pos_hint: {"center_x": 0.5}
+                padding: dp(40), dp(10)
+                spacing: dp(32)
+                canvas.before:
+                    Color:
+                        rgba: 0.10, 0.32, 0.55, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(28), dp(28), dp(28), dp(28)]
+                    Color:
+                        rgba: 0, 0, 0, 0.10
+                    Rectangle:
+                        pos: self.x, self.y - dp(8)
+                        size: self.width, dp(16)
+                # BUSCADOR
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.7
+                    size_hint_y: None
+                    height: dp(60)
+                    elevation: 0
+                    md_bg_color: 1, 1, 1, 1
+                    radius: [dp(20), dp(20), dp(20), dp(20)]
+                    padding: [dp(8), 0, dp(8), 0]
+                    MDTextField:
+                        id: buscar_faena
+                        hint_text: "Buscar por nombre, tipo o ubicación"
+                        icon_right: "magnify"
+                        on_text: root.filtrar_faenas(self.text)
+                        mode: "rectangle"
+                        line_color_focus: 0.10, 0.32, 0.55, 1
+                        line_color_normal: 0.7, 0.7, 0.7, 1
+                        size_hint_x: 1
+                        size_hint_y: 1
+                        font_size: "22sp"
+                        hint_text_color: 0.4, 0.4, 0.5, 1
+                        icon_right_color: 0.10, 0.32, 0.55, 1
+                        pos_hint: {"center_y": 0.5}
+                Widget:
+                    size_hint_x: 0.05
+                MDRaisedButton:
+                    text: "NUEVA FAENA"
+                    icon: "clipboard-plus"
+                    md_bg_color: 0.18, 0.67, 0.89, 1
+                    on_release: root.ir_a_faena_form()
+                    elevation: 8
+                    size_hint_x: 0.22
+                    size_hint_y: None
+                    height: dp(60)
+                    pos_hint: {"center_y": 0.5}
+                    font_style: "Button"
+                    text_color: 1, 1, 1, 1
+                    icon_color: 1, 1, 1, 1
+                    icon_size: dp(32)
+                    padding: (dp(24), dp(0), dp(24), dp(0))
+                    canvas.before:
+                        Color:
+                            rgba: 0.18, 0.67, 0.89, 1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20), dp(20), dp(20), dp(20)]
+            # FIN BLOQUE ÚNICO
+            # MEJORA VISUAL CONTADOR Y LISTA (AJUSTADO Y ORDENADO)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                pos_hint: {"center_x": 0.5}
+                padding: dp(8), dp(0), dp(8), dp(2)
+                spacing: dp(8)
+                MDIcon:
+                    icon: "format-list-bulleted"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "26sp"
+                    size_hint_x: None
+                    width: dp(28)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Lista de faenas"
+                    font_style: "Subtitle1"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    size_hint_x: 0.7
+                    halign: "left"
+                    valign: "middle"
+                    height: self.texture_size[1] + dp(10)
+                Widget:
+                    size_hint_x: 0.05
+                MDIcon:
+                    icon: "counter"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "22sp"
+                    size_hint_x: None
+                    width: dp(22)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    id: contador_faenas
+                    text: f"Total faenas: {len(root.faenas_filtradas)}"
+                    font_style: "Subtitle2"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    halign: "left"
+                    valign: "middle"
+                    size_hint_x: 0.18
+                    height: self.texture_size[1] + dp(5)
+            # FIN MEJORA VISUAL
+            MDCard:
+                orientation: "vertical"
+                padding: dp(12), dp(4), dp(12), dp(12)
+                spacing: dp(6)
+                elevation: 2
+                md_bg_color: 1, 1, 1, 1
+                size_hint_x: 0.9
+                pos_hint: {"center_x": 0.5}
+                size_hint_y: None
+                height: dp(440)
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(12), dp(12), dp(12), dp(12)]
+                ScrollView:
+                    size_hint_y: None
+                    height: dp(420)
+                    MDList:
+                        id: lista_faenas
+                        padding: [dp(8), 0, dp(32), 0]
+
+<FaenaCard>:
+    orientation: "horizontal"
+    padding: (16, 8)
+    size_hint_y: None
+    height: "72dp"
+    md_bg_color: (1, 1, 1, 1)
+    elevation: 1
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(8), dp(8), dp(8), dp(8)]
+    line_color: (0.7, 0.7, 0.7, 0.2)
+    line_width: 0.5
+    ripple_behavior: True
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: 2
+        size_hint_x: 0.85
+        padding: [0, 0, 10, 0]
+
+        MDLabel:
+            text: root.text
+            markup: True
+            font_style: "Subtitle1"
+            theme_text_color: "Primary"
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        MDLabel:
+            text: root.secondary_text
+            theme_text_color: "Hint"
+            font_style: "Caption"
+            size_hint_y: None
+            height: self.texture_size[1]
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: 0.15
+        spacing: 0
+        padding: [0, 0, 0, 0]
+        halign: "right"
+        pos_hint: {"center_y": 0.5}
+
+        IconButtonTooltip:
+            icon: "eye"
+            tooltip_text: "Ver detalles"
+            on_release: app.root.get_screen('faenas').mostrar_detalles_faena(root.faena_data)
+            icon_size: "20dp"
+            pos_hint: {"center_y": 0.5}
+
+        IconButtonTooltip:
+            icon: "account-multiple-plus"
+            tooltip_text: "Asignar Miembros"
+            on_release: app.root.get_screen('faenas').ir_a_asignar_faena(root.faena_data)
+            icon_size: "20dp"
+            pos_hint: {"center_y": 0.5}
+
+        IconButtonTooltip:
+            icon: "pencil"
+            tooltip_text: "Editar"
+            on_release: app.root.get_screen('faenas').ir_a_faena_form_editar(root.faena_data)
+            icon_size: "20dp"
+            pos_hint: {"center_y": 0.5}
+
+        IconButtonTooltip:
+            icon: "delete"
+            tooltip_text: "Eliminar"
+            on_release: app.root.get_screen('faenas').eliminar_faena(root.faena_data)
+            icon_size: "20dp"
+            pos_hint: {"center_y": 0.5}
+
+<IconButtonTooltip@MDIconButton+MDTooltip>:
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color if self.md_bg_color else (1, 1, 1, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(4), dp(4), dp(4), dp(4)]

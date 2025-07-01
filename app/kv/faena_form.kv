@@ -1,0 +1,211 @@
+#:kivy 1.0
+
+<FaenaFormScreen>:
+    name: "faena_form"
+    faena: {}
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(15)
+            md_bg_color: 0, 0, 0, 0
+
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "faenas"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "shovel"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: root.titulo
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            ScrollView:
+                size_hint: 1, 1
+                bar_width: dp(4)
+                bar_color: app.theme_cls.primary_color
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(15)
+                    padding: dp(15)
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        spacing: dp(15)
+                        radius: [16]
+                        elevation: 4
+                        size_hint_y: None
+                        height: self.minimum_height
+                        md_bg_color: 1, 1, 1, 1  
+                        size_hint_x: 1
+
+                        MDLabel:
+                            text: "Datos de la Faena"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            halign: "center"
+                            size_hint_y: None
+                            height: dp(40)
+
+                        MDTextField:
+                            id: input_nombre
+                            hint_text: "Nombre de la faena"
+                            icon_left: "shovel"
+                            required: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: input_descripcion
+                            hint_text: "Descripción"
+                            icon_left: "text"
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: input_fecha_inicio
+                            hint_text: "Fecha de inicio (YYYY-MM-DD HH:MM:SS)"
+                            icon_left: "calendar"
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+                            on_focus: if self.focus: root.abrir_calendario_inicio()
+                            on_text: root.actualizar_estado_faena()
+
+                        MDTextField:
+                            id: input_fecha_fin
+                            hint_text: "Fecha de fin (YYYY-MM-DD HH:MM:SS)"
+                            icon_left: "calendar"
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+                            on_focus: if self.focus: root.abrir_calendario_fin()
+                            on_text: root.actualizar_estado_faena()
+
+                        MDTextField:
+                            id: input_ubicacion
+                            hint_text: "Ubicación"
+                            icon_left: "map-marker"
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDLabel:
+                            id: label_estado
+                            text: root.estado_faena
+                            font_style: "Subtitle2"
+                            theme_text_color: "Secondary"
+                            size_hint_y: None
+                            height: dp(24)
+                            halign: "left"
+
+                        MDLabel:
+                            text: "Tipo de Faena"
+                            font_style: "Subtitle2"
+                            theme_text_color: "Primary"
+                            size_hint_y: None
+                            height: dp(24)
+                            halign: "left"
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            spacing: dp(20)  # Ajustar este valor para separar más las opciones
+                            size_hint_y: None
+                            height: dp(40)
+                            size_hint_x: None
+                            width: self.minimum_width
+                            padding: [dp(10), 0, 0, 0]  # <-- mueve solo el grupo un poco a la derecha
+
+                            MDCheckbox:
+                                id: radio_ordinaria
+                                group: "tipo_faena"  # Agregamos el grupo
+                                on_active: if self.active: root.seleccionar_tipo("Ordinaria")
+                                size_hint: None, None
+                                size: dp(48), dp(48)
+                                pos_hint: {'center_y': .5}
+                            MDLabel:
+                                text: "Ordinaria"
+                                valign: "middle"
+                                halign: "left"
+                                size_hint_x: None
+                                width: dp(90)
+                                pos_hint: {'center_y': .5}
+
+                            MDCheckbox:
+                                id: radio_extraordinaria
+                                group: "tipo_faena"  # Agregamos el grupo
+                                on_active: if self.active: root.seleccionar_tipo("Extraordinaria")
+                                size_hint: None, None
+                                size: dp(48), dp(48)
+                                pos_hint: {'center_y': .5}
+                            MDLabel:
+                                text: "Extraordinaria"
+                                valign: "middle"
+                                halign: "left"
+                                size_hint_x: None
+                                width: dp(120)
+                                pos_hint: {'center_y': .5}
+
+                        MDTextField:
+                            id: input_tipoJornada
+                            hint_text: "Tipo de Jornada (solo ordinaria)"
+                            icon_left: "clock"
+                            mode: "rectangle"
+                            size_hint_y: None 
+                            height: dp(50) if root.mostrar_tipo_jornada else 0
+                            opacity: 1 if root.mostrar_tipo_jornada else 0
+                            disabled: not root.mostrar_tipo_jornada
+
+                        MDTextField:
+                            id: input_motivoExtra
+                            hint_text: "Motivo Extra (solo extraordinaria)"
+                            icon_left: "alert"
+                            mode: "rectangle"
+                            size_hint_y: None 
+                            height: dp(50) if root.mostrar_motivo_extra else 0
+                            opacity: 1 if root.mostrar_motivo_extra else 0
+                            disabled: not root.mostrar_motivo_extra
+
+                        MDRaisedButton:
+                            text: "Guardar Cambios" if root.modo_edicion else "Guardar Faena"
+                            md_bg_color: app.theme_cls.primary_color
+                            pos_hint: {"center_x": 0.5}
+                            on_release: root.guardar_faena()

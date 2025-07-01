@@ -1,0 +1,27 @@
+#:kivy 1.0
+
+<ReportesScreen>:
+    name: "reportes"
+    FloatLayout:
+        MDIconButton:
+            icon: "arrow-left"
+            pos_hint: {"x": 0.02, "top": 0.98}
+            theme_text_color: "Custom"
+            text_color: 0.1, 0.3, 0.5, 1
+            on_release: app.root.current = "dashboard"
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: 0.7, 0.7
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            spacing: dp(30)
+            padding: dp(30)
+            Image:
+                id: working_img
+                source: "assets/images/working_placeholder.jpg"
+                allow_stretch: True
+                keep_ratio: True
+            MDLabel:
+                text: "Estamos trabajando en ello"
+                halign: "center"
+                font_style: "H5"
+                theme_text_color: "Primary" 

@@ -1,0 +1,181 @@
+#:kivy 1.0
+<MiembrosScreen>:
+    name: "miembros"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(10)
+            md_bg_color: 0, 0, 0, 0
+
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "dashboard"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "account-group"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Gestión de Miembros"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                size_hint_y: None
+                height: dp(100)
+                pos_hint: {"center_x": 0.5}
+                padding: dp(40), dp(10)
+                spacing: dp(32)
+                canvas.before:
+                    Color:
+                        rgba: 0.10, 0.32, 0.55, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(28), dp(28), dp(28), dp(28)]
+                    Color:
+                        rgba: 0, 0, 0, 0.10
+                    Rectangle:
+                        pos: self.x, self.y - dp(8)
+                        size: self.width, dp(16)
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.7
+                    size_hint_y: None
+                    height: dp(60)
+                    elevation: 0
+                    md_bg_color: 1, 1, 1, 1
+                    radius: [dp(20), dp(20), dp(20), dp(20)]
+                    padding: [dp(8), 0, dp(8), 0]
+                    MDTextField:
+                        id: buscar_input
+                        hint_text: "Buscar por nombre o DNI"
+                        icon_right: "magnify"
+                        on_text: root.filtrar_miembros(self.text)
+                        mode: "rectangle"
+                        line_color_focus: app.theme_cls.primary_color
+                        line_color_normal: 0.7, 0.7, 0.7, 1
+                        size_hint_x: 1
+                        size_hint_y: 1
+                        font_size: "22sp"
+                        hint_text_color: 0.4, 0.4, 0.5, 1
+                        icon_right_color: 0.10, 0.32, 0.55, 1
+                        pos_hint: {"center_y": 0.5}
+                Widget:
+                    size_hint_x: 0.05
+                MDRaisedButton:
+                    text: "Agregar Miembro"
+                    icon: "account-plus"
+                    md_bg_color: app.theme_cls.primary_color
+                    on_release: root.abrir_panel_agregar()
+                    elevation: 8
+                    size_hint_x: 0.22
+                    size_hint_y: None
+                    height: dp(60)
+                    pos_hint: {"center_y": 0.5}
+                MDRaisedButton:
+                    text: "Exportar Excel"
+                    icon: "file-excel"
+                    md_bg_color: 0, 0.6, 0, 1
+                    on_release: root.exportar_excel()
+                    elevation: 8
+                    size_hint_x: 0.22
+                    size_hint_y: None
+                    height: dp(60)
+                    pos_hint: {"center_y": 0.5}
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_x: 0.9
+                pos_hint: {"center_x": 0.5}
+                padding: dp(8), dp(0), dp(8), dp(0)
+                spacing: dp(6)
+                MDIcon:
+                    icon: "format-list-bulleted"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "26sp"
+                    size_hint_x: None
+                    width: dp(28)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Lista de miembros"
+                    font_style: "Subtitle1"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    size_hint_x: 0.7
+                    halign: "left"
+                    valign: "middle"
+                    height: self.texture_size[1] + dp(10)
+                Widget:
+                    size_hint_x: 0.05
+                MDIcon:
+                    icon: "counter"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "22sp"
+                    size_hint_x: None
+                    width: dp(22)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    id: contador_miembros
+                    text: f"Total miembros: {len(root.miembros_filtrados)}"
+                    font_style: "Subtitle2"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    bold: True
+                    halign: "left"
+                    valign: "middle"
+                    size_hint_x: 0.18
+                    height: self.texture_size[1] + dp(5)
+
+            MDCard:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(8)
+                elevation: 2
+                radius: [12, 12, 12, 12]
+                md_bg_color: 1, 1, 1, 1
+                size_hint_x: 0.55
+                pos_hint: {"center_x": 0.5}
+                size_hint_y: None
+                height: dp(440)
+                ScrollView:
+                    size_hint_y: None
+                    height: dp(420)
+                    MDList:
+                        id: lista_miembros
+                        padding: [dp(8), 0, dp(32), 0]

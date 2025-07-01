@@ -1,0 +1,124 @@
+#:kivy 2.0.0
+
+<AsistenciaMenuScreen>:
+    name: "asistencia_menu"
+
+    FloatLayout:
+        # Fondo con gradiente (similar al dashboard)
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1  # Azul oscuro base
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8  # Gradiente azul medio
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+
+            # Header
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: root.go_back()
+                    pos_hint: {"center_y": 0.5}
+
+                MDIcon:
+                    icon: "calendar-check"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    text: "Menú de Asistencia"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            # Contenido principal: Botones de opciones dentro de una MDCard
+            MDCard:
+                orientation: "vertical"
+                padding: dp(30)
+                spacing: dp(25)
+                md_bg_color: 1, 1, 1, 0.95 # Fondo claro para los botones
+                elevation: 3
+                radius: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                adaptive_width: True
+                adaptive_height: True
+
+                MDLabel:
+                    text: "Selecciona un tipo de asistencia"
+                    font_style: "H6"
+                    theme_text_color: "Primary"
+                    halign: "center"
+                    size_hint_y: None
+                    height: dp(40)
+                    padding_y: dp(10)
+
+                MDRaisedButton:
+                    text: "Asistencia a Reuniones"
+                    icon: "account-multiple-check"
+                    md_bg_color: 0.2, 0.6, 0.86, 1
+                    text_color: 1, 1, 1, 1
+                    font_style: "H6"
+                    size_hint_y: None
+                    height: dp(60)
+                    on_release: root.go_to_asistencia_reuniones()
+
+                MDRaisedButton:
+                    text: "Asistencia a Faenas"
+                    icon: "clipboard-check-multiple"
+                    md_bg_color: 0.67, 0.16, 0.76, 1
+                    text_color: 1, 1, 1, 1
+                    font_style: "H6"
+                    size_hint_y: None
+                    height: dp(60)
+                    on_release: root.go_to_asistencia_faenas()
+
+            # Footer con información
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(15)
+                md_bg_color: 0, 0, 0, 0.2
+                elevation: 0
+                radius: dp(10)
+                size_hint_y: None
+                height: dp(100)
+
+                MDIcon:
+                    icon: "information"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.7
+                    font_size: "18sp"
+                    size_hint_x: None
+                    width: dp(25)
+
+                MDLabel:
+                    text: "• Selecciona una opción para registrar o consultar asistencia\n• Registra la participación en reuniones o faenas de la comunidad"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.8
+                    font_style: "Caption" 

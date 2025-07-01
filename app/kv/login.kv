@@ -1,0 +1,61 @@
+<LoginScreen>:
+    MDFloatLayout:
+        md_bg_color: 1, 1, 1, 1
+
+        Image:
+            source: "assets/fonts/yuriy-kovalev-nN1HSDtKdlw-unsplash.jpg"
+            allow_stretch: True
+            keep_ratio: False
+
+        MDCard:
+            size_hint: None, None
+            size: "400dp", "500dp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            elevation: 10
+            radius: [25, 25, 25, 25]
+            padding: 30
+            spacing: 20
+            orientation: 'vertical'
+
+            FitImage:
+                source: "assets/images/images-removebg-preview.png"
+                size_hint: None, None
+                size: "120dp", "120dp"
+                pos_hint: {"center_x": 0.5}
+
+            MDLabel:
+                text: "Iniciar Sesión"
+                font_style: "H4"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDTextField:
+                id: dni_input
+                hint_text: "DNI"
+                icon_right: "card-account-details"
+                mode: "rectangle"
+                required: True
+
+            MDTextField:
+                id: contrasena_input
+                hint_text: "Contraseña"
+                icon_right: "lock"
+                mode: "rectangle"
+                required: True
+                password: True
+
+            MDLabel:
+                id: mensaje_error
+                text: root.error_msg
+                theme_text_color: "Error"
+                font_style: "Caption"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Ingresar"
+                pos_hint: {"center_x": 0.5}
+                on_release: root.validar_credenciales()
+

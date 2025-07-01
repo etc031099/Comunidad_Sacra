@@ -1,0 +1,251 @@
+#:kivy 2.0.0
+
+<HistorialMiembroScreen>:
+    name: "historial_miembro"
+
+    FloatLayout:
+        # Fondo con gradiente
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1  # Azul oscuro base
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8  # Gradiente azul medio
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+
+            # Header
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: root.go_back()
+                    pos_hint: {"center_y": 0.5}
+
+                MDIcon:
+                    icon: "history"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    text: "Historial de Participación"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            # Contenido principal: MDBoxLayout horizontal para los dos paneles
+            MDBoxLayout:
+                orientation: "horizontal"
+                spacing: dp(20)
+                padding: dp(10)
+
+                # Panel Izquierdo: Lista de Miembros
+                MDCard:
+                    orientation: "vertical"
+                    padding: dp(20)
+                    md_bg_color: 1, 1, 1, 0.95
+                    elevation: 3
+                    radius: dp(10)
+                    size_hint_x: 0.3
+
+                    MDLabel:
+                        text: "Miembros"
+                        font_style: "H6"
+                        theme_text_color: "Primary"
+                        size_hint_y: None
+                        height: dp(30)
+
+                    ScrollView:
+                        MDList:
+                            id: miembros_list
+                            spacing: dp(10)
+                            padding: dp(10)
+
+                # Panel Derecho: Historial del Miembro Seleccionado y Filtros
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(20)
+                    size_hint_x: 0.7
+
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        md_bg_color: 1, 1, 1, 0.95
+                        elevation: 3
+                        radius: dp(10)
+                        adaptive_height: True # Ajusta la altura automáticamente
+
+                        MDLabel:
+                            id: miembro_seleccionado_label
+                            text: "Seleccione un Miembro"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            size_hint_y: None
+                            height: dp(30)
+                            padding_y: dp(10)
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            spacing: dp(10)
+                            size_hint_y: None
+                            height: dp(48) # Altura para los dropdowns y el botón
+                            padding_y: dp(10)
+
+                            MDDropDownItem:
+                                id: periodo_dropdown
+                                text: "Período"
+                                on_release: root.show_periodo_menu()
+                                size_hint_x: 0.3
+
+                            MDDropDownItem:
+                                id: tipo_evento_dropdown
+                                text: "Tipo de Evento"
+                                on_release: root.show_tipo_evento_menu()
+                                size_hint_x: 0.3
+
+                            MDDropDownItem:
+                                id: estado_dropdown
+                                text: "Estado"
+                                on_release: root.show_estado_menu()
+                                size_hint_x: 0.3
+
+                            MDIconButton:
+                                icon: "refresh"
+                                theme_text_color: "Primary"
+                                on_release: root.cargar_historial_miembro_seleccionado()
+                                tooltip_text: "Actualizar historial"
+                                size_hint_x: None
+                                width: dp(48)
+                                pos_hint: {"center_y": 0.5}
+
+                    # Lista de historial de actividades
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        md_bg_color: 1, 1, 1, 0.95
+                        elevation: 3
+                        radius: dp(10)
+                        size_hint_y: None
+                        height: dp(350)
+
+                        MDLabel:
+                            text: "Actividades del Miembro"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            size_hint_y: None
+                            height: dp(40)
+
+                        ScrollView:
+                            MDList:
+                                id: historial_actividades_list
+                                spacing: dp(10)
+                                padding: dp(10)
+
+            # Footer con información
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(15)
+                md_bg_color: 0, 0, 0, 0.2
+                elevation: 0
+                radius: dp(10)
+                size_hint_y: None
+                height: dp(100)
+
+                MDIcon:
+                    icon: "information"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.7
+                    font_size: "18sp"
+                    size_hint_x: None
+                    width: dp(25)
+
+                MDLabel:
+                    text: "• Selecciona un miembro para ver su historial detallado\n• Usa los filtros para refinar la búsqueda\n• El historial incluye asistencias, reuniones y penalizaciones"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.8
+                    font_style: "Caption"
+
+<HistorialItem>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: 110
+    padding: 10
+    spacing: 20
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+    canvas.after:
+        Color:
+            rgba: 0.85, 0.85, 0.85, 1
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, 10)
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint_x: 0.7
+        spacing: 2
+
+        MDLabel:
+            text: root.nombre_evento
+            theme_text_color: "Custom"
+            text_color: 0.1, 0.1, 0.1, 1
+            font_style: "Subtitle1"
+            size_hint_y: None
+            height: 30
+
+        MDLabel:
+            text: root.tipo_evento
+            theme_text_color: "Custom"
+            text_color: 0.2, 0.2, 0.2, 1
+            font_style: "Subtitle2"
+            size_hint_y: None
+            height: 24
+
+        MDLabel:
+            text: f"Fecha: {root.fecha} | Estado: {root.estado}"
+            theme_text_color: "Custom"
+            text_color: 0.3, 0.3, 0.3, 1
+            font_style: "Caption"
+            size_hint_y: None
+            height: 20
+
+        MDLabel:
+            text: root.detalles if root.detalles else ""
+            theme_text_color: "Custom"
+            text_color: 0.3, 0.3, 0.3, 1
+            font_style: "Caption"
+            size_hint_y: None
+            height: 20
+
+<MiembroListItem>:
+    # No necesitamos definir text y secondary_text aquí porque ya se configuran en el .py
+    IconLeftWidget:
+        icon: "account-circle"
+        theme_text_color: "Primary" 

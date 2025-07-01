@@ -1,0 +1,122 @@
+#:kivy 1.0
+
+<NotificacionesScreen>:
+    name: "notificaciones"
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+
+            # Encabezado
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "dashboard"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "bell-alert"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Panel de Notificaciones"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            # Contenedor principal con ScrollView
+            ScrollView:
+                MDBoxLayout:
+                    id: main_content_box
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: dp(20)
+
+                    # Card para Eventos Próximos
+                    MDCard:
+                        orientation: 'vertical'
+                        size_hint_y: None
+                        height: self.minimum_height
+                        padding: dp(15)
+                        spacing: dp(10)
+                        md_bg_color: 1, 1, 1, 1
+                        radius: [15, 15, 15, 15]
+                        MDLabel:
+                            text: "Eventos Próximos (Siguientes 7 días)"
+                            font_style: "H6"
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            bold: True
+                        MDBoxLayout:
+                            id: eventos_proximos_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            height: self.minimum_height
+
+                    # Card para Nuevas Penalizaciones
+                    MDCard:
+                        orientation: 'vertical'
+                        size_hint_y: None
+                        height: self.minimum_height
+                        padding: dp(15)
+                        spacing: dp(10)
+                        md_bg_color: 1, 1, 1, 1
+                        radius: [15, 15, 15, 15]
+                        MDLabel:
+                            text: "Nuevas Penalizaciones Pendientes"
+                            font_style: "H6"
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            bold: True
+                        MDBoxLayout:
+                            id: nuevas_penalizaciones_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            height: self.minimum_height
+
+                    # Card para Inasistencias
+                    MDCard:
+                        orientation: 'vertical'
+                        size_hint_y: None
+                        height: self.minimum_height
+                        padding: dp(15)
+                        spacing: dp(10)
+                        md_bg_color: 1, 1, 1, 1
+                        radius: [15, 15, 15, 15]
+                        MDLabel:
+                            text: "Miembros con Inasistencias Recientes"
+                            font_style: "H6"
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            bold: True
+                        MDBoxLayout:
+                            id: inasistencias_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            height: self.minimum_height

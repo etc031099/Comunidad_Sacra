@@ -1,0 +1,157 @@
+#:kivy 1.0
+
+<MiembroFormScreen>:
+    name: "miembro_form"
+    miembro: {}
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(15)
+            md_bg_color: 0, 0, 0, 0
+
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.root.current = "miembros"
+                    pos_hint: {"center_y": 0.5}
+                MDIcon:
+                    icon: "account-circle"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: root.titulo
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            ScrollView:
+                size_hint: 1, 1
+                bar_width: dp(4)
+                bar_color: app.theme_cls.primary_color
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(15)
+                    padding: dp(15)
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        spacing: dp(15)
+                        radius: [16]
+                        elevation: 4
+                        size_hint_y: None
+                        height: self.minimum_height
+                        md_bg_color: 1, 1, 1, 1  
+                        size_hint_x: 1
+
+                        MDLabel:
+                            text: "Datos del Miembro"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            halign: "center"
+                            size_hint_y: None
+                            height: dp(40)
+
+                        MDTextField:
+                            id: nombre
+                            hint_text: "Nombre(s)"
+                            icon_left: "account"
+                            text: root.miembro.get("Nombre", "")
+                            required: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: apellido_paterno
+                            hint_text: "Apellido Paterno"
+                            icon_left: "account"
+                            text: root.miembro.get("Apellido_Paterno", "")
+                            required: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: apellido_materno
+                            hint_text: "Apellido Materno"
+                            icon_left: "account"
+                            text: root.miembro.get("Apellido_Materno", "")
+                            required: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: dni
+                            hint_text: "DNI"
+                            icon_left: "card-account-details"
+                            text: root.miembro.get("DNI", "")
+                            required: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: correo
+                            hint_text: "Correo electrónico"
+                            icon_left: "email"
+                            text: root.miembro.get("Correo", "")
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: direccion
+                            hint_text: "Dirección"
+                            icon_left: "home-map-marker"
+                            text: root.miembro.get("Dirección", "")
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDTextField:
+                            id: telefono
+                            hint_text: "Teléfono"
+                            icon_left: "phone"
+                            text: root.miembro.get("Teléfono", "")
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+
+                        MDRaisedButton:
+                            text: "Guardar"
+                            md_bg_color: app.theme_cls.primary_color
+                            pos_hint: {"center_x": 0.5}
+                            on_release: root.guardar_miembro()

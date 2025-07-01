@@ -1,0 +1,375 @@
+#:kivy 1.0
+
+<MiembroAsistenciaItem>:
+    text: ""
+    secondary_text: ""
+    presente: False
+    miembro_id: 0
+    estado_asistencia: "Sin registrar"
+    orientation: "horizontal"
+    padding: (0, 0, dp(8), 0)
+    spacing: 10
+    elevation: 2
+    ripple_behavior: True
+    size_hint_y: None
+    height: "72dp"
+    radius: [8, 8, 8, 8]
+    md_bg_color: 1, 1, 1, 1
+    on_release: root.on_check_change(root.miembro_id) if root.on_check_change else None
+    
+    MDCard:
+        size_hint_x: None
+        width: dp(5)
+        md_bg_color: (0.1, 0.6, 0.2, 1) if root.estado_asistencia == "Presente" else (0.9, 0.2, 0.2, 1) if root.estado_asistencia == "Ausente" else (0.9, 0.5, 0.1, 1) if root.estado_asistencia == "Tardanza" else (0.1, 0.5, 0.9, 1) if root.estado_asistencia == "Justificado" else (0.7, 0.7, 0.7, 1)
+        radius: [7, 0, 0, 7]
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        spacing: dp(12)
+        padding: dp(12)
+
+        MDIcon:
+            icon: "check-circle-outline" if root.estado_asistencia == "Presente" else "close-circle-outline" if root.estado_asistencia == "Ausente" else "clock-alert-outline" if root.estado_asistencia == "Tardanza" else "file-check-outline" if root.estado_asistencia == "Justificado" else "help-circle-outline"
+            theme_text_color: "Custom"
+            text_color: (0.1, 0.6, 0.2, 1) if root.estado_asistencia == "Presente" else (0.9, 0.2, 0.2, 1) if root.estado_asistencia == "Ausente" else (0.9, 0.5, 0.1, 1) if root.estado_asistencia == "Tardanza" else (0.1, 0.5, 0.9, 1) if root.estado_asistencia == "Justificado" else (0.7, 0.7, 0.7, 1)
+            size_hint: None, None
+            size: dp(40), dp(40)
+            pos_hint: {"center_y": 0.5}
+
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(2)
+            adaptive_height: True
+            pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                text: root.text
+                font_style: "Subtitle1"
+                bold: True
+                theme_text_color: "Primary"
+                size_hint_y: None
+                height: self.texture_size[1]
+                
+            MDLabel:
+                text: root.secondary_text
+                font_style: "Body2"
+                theme_text_color: "Secondary"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+<AsistenciaFaenaScreen>:
+    name: "asistencia_faena"
+    
+    FloatLayout:
+        # Fondo con gradiente
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.15, 0.25, 1  # Azul oscuro base
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: 0.08, 0.30, 0.45, 0.8  # Gradiente azul medio
+            Rectangle:
+                pos: self.pos[0], self.pos[1] + self.size[1] * 0.7
+                size: self.size[0], self.size[1] * 0.3
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(20)
+            spacing: dp(20)
+
+            # Header
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(20)
+                md_bg_color: 1, 1, 1, 0.1
+                elevation: 0
+                radius: dp(15)
+                size_hint_y: None
+                height: dp(80)
+
+                MDIconButton:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: root.volver_asistencia_menu()
+                    pos_hint: {"center_y": 0.5}
+
+                MDIcon:
+                    icon: "clipboard-check-multiple"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "32sp"
+                    size_hint_x: None
+                    width: dp(50)
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    text: "Asistencia a Faenas"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_style: "H4"
+                    bold: True
+                    pos_hint: {"center_y": 0.5}
+
+            # Contenido principal
+            ScrollView:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(20)
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(10)
+
+                    # Selección de faena
+                    MDCard:
+                        orientation: "vertical"
+                        padding: dp(20)
+                        md_bg_color: 1, 1, 1, 0.95
+                        elevation: 3
+                        radius: dp(10)
+                        size_hint_y: None
+                        height: dp(250)
+
+                        MDLabel:
+                            text: "Seleccionar Faena"
+                            font_style: "H6"
+                            theme_text_color: "Primary"
+                            size_hint_y: None
+                            height: dp(30)
+
+                        # Botón para abrir dropdown en lugar de MDDropDownItem
+                        MDRaisedButton:
+                            id: dropdown_faena
+                            text: "Seleccione una faena..."
+                            pos_hint: {"center_x": 0.5}
+                            size_hint_y: None
+                            height: dp(56)
+                            md_bg_color: 0.2, 0.6, 0.86, 1
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+                            on_release: root.abrir_dropdown()
+
+                        Widget:
+                            size_hint_y: None
+                            height: dp(10)
+
+                        # Campo para seleccionar fecha
+                        MDTextField:
+                            id: input_fecha_asistencia
+                            hint_text: "Seleccione la fecha de asistencia"
+                            icon_right: "calendar"
+                            readonly: True
+                            mode: "rectangle"
+                            size_hint_y: None
+                            height: dp(50)
+                            on_focus: if self.focus: root.abrir_calendario_asistencia()
+
+                        # Información de la faena seleccionada
+                        MDLabel:
+                            id: info_faena
+                            text: ""
+                            font_style: "Caption"
+                            theme_text_color: "Secondary"
+                            size_hint_y: None
+                            height: dp(20)
+                            text_size: self.width, None
+
+                        MDLabel:
+                            id: info_ubicacion
+                            text: ""
+                            font_style: "Caption"
+                            theme_text_color: "Secondary"
+                            size_hint_y: None
+                            height: dp(20)
+                            text_size: self.width, None
+
+                        MDLabel:
+                            id: info_fechas
+                            text: ""
+                            font_style: "Caption"
+                            theme_text_color: "Secondary"
+                            size_hint_y: None
+                            height: dp(20)
+                            text_size: self.width, None
+
+                    # Lista de miembros asignados
+                    MDCard:
+                        orientation: "vertical"
+                        padding: (dp(15), dp(15), dp(15), dp(20))
+                        md_bg_color: 1, 1, 1, 0.98
+                        elevation: 3
+                        radius: [15, 15, 15, 15]
+                        size_hint_y: None
+                        adaptive_height: True
+                        spacing: dp(12)
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            size_hint_y: None
+                            height: dp(40)
+
+                            MDLabel:
+                                text: "Lista de Asistencia"
+                                font_style: "H6"
+                                theme_text_color: "Primary"
+                                pos_hint: {"center_y": 0.5}
+
+                            Widget:
+
+                            MDIconButton:
+                                icon: "refresh"
+                                theme_text_color: "Primary"
+                                on_release: root.cargar_asistencias_fecha(root.fecha_seleccionada) if root.fecha_seleccionada else root.cargar_miembros_asignados()
+                                tooltip_text: "Actualizar lista"
+
+                        MDTextField:
+                            id: search_field
+                            hint_text: "Buscar miembro..."
+                            mode: "fill"
+                            icon_right: "magnify"
+                            size_hint_x: 1
+                            on_text: root.buscar_miembro(self.text)
+                            pos_hint: {"center_x": 0.5}
+                            fill_color_normal: 0, 0, 0, 0.04
+                            fill_color_focus: 1, 1, 1, 0.02
+                            padding: (dp(10))
+
+                        # Lista scrolleable de miembros
+                        RecycleView:
+                            id: rv_miembros
+                            viewclass: 'MiembroAsistenciaItem'
+                            size_hint_y: None
+                            height: "350dp"
+                            RecycleBoxLayout:
+                                default_size: None, dp(72)
+                                default_size_hint: 1, None
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation: 'vertical'
+                                spacing: dp(8)
+                                padding: (dp(4), 0)
+
+                    # Botones de acción
+                    MDCard:
+                        orientation: "horizontal"
+                        padding: dp(20)
+                        md_bg_color: 1, 1, 1, 0.95
+                        elevation: 3
+                        radius: dp(10)
+                        size_hint_y: None
+                        height: dp(130)
+                        spacing: dp(15)
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 0.3
+                            spacing: dp(2)
+                            
+                            MDRaisedButton:
+                                text: "Justificar Ausencias"
+                                md_bg_color: 0.96, 0.61, 0.13, 1
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                on_release: root.mostrar_dialog_justificacion()
+                                size_hint_x: 1
+                                tooltip_text: "Registra justificación para miembros ausentes"
+                            
+                            MDLabel:
+                                text: "Registra justificación para ausencias"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                size_hint_y: None
+                                height: dp(20)
+                                halign: "center"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 0.3
+                            spacing: dp(2)
+                            
+                            MDRaisedButton:
+                                text: "Generar Reporte"
+                                md_bg_color: 0.2, 0.6, 0.86, 1
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                on_release: root.generar_reporte()
+                                size_hint_x: 1
+                                tooltip_text: "Muestra estadísticas de asistencia"
+                            
+                            MDLabel:
+                                text: "Muestra estadísticas de asistencia"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                size_hint_y: None
+                                height: dp(20)
+                                halign: "center"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 0.4
+                            spacing: dp(2)
+                            
+                            MDRaisedButton:
+                                text: "Marcar Tardanzas"
+                                md_bg_color: 0.67, 0.16, 0.76, 1
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                on_release: root.marcar_tardanzas()
+                                size_hint_x: 1
+                                tooltip_text: "Marca como tardanza a miembros que llegaron después de las 8:00 AM"
+                            
+                            MDLabel:
+                                text: "Marca tardanzas (después de 8:00 AM)"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                size_hint_y: None
+                                height: dp(20)
+                                halign: "center"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 0.3
+                            spacing: dp(2)
+                            
+                            MDRaisedButton:
+                                text: "Leyenda de Colores"
+                                md_bg_color: 0.1, 0.7, 0.5, 1
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                on_release: root.mostrar_leyenda_colores()
+                                size_hint_x: 1
+                                tooltip_text: "Muestra el significado de los colores"
+                            
+                            MDLabel:
+                                text: "Muestra el significado de los colores"
+                                font_style: "Caption"
+                                theme_text_color: "Secondary"
+                                size_hint_y: None
+                                height: dp(20)
+                                halign: "center"
+
+            # Footer con información
+            MDCard:
+                orientation: "horizontal"
+                padding: dp(15)
+                md_bg_color: 0, 0, 0, 0.2
+                elevation: 0
+                radius: dp(10)
+                size_hint_y: None
+                height: dp(100)
+
+                MDIcon:
+                    icon: "information"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.7
+                    font_size: "18sp"
+                    size_hint_x: None
+                    width: dp(25)
+
+                MDLabel:
+                    text: "• Toque un miembro para cambiar su estado de asistencia\n• Para miembros con estado Tardanza o Justificado, toque para ver opciones\n• Use 'Justificar Ausencias' para registrar motivos de faltas\n• 'Generar Reporte' muestra estadísticas de asistencia\n• 'Marcar Tardanzas' identifica llegadas después de las 8:00 AM"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.8
+                    font_style: "Caption"

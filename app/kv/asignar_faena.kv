@@ -1,0 +1,250 @@
+#:kivy 1.0
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import MDTooltip kivymd.uix.tooltip.MDTooltip
+
+# Creamos una nueva clase para el botón con tooltip
+<InfoButton@MDIconButton+MDTooltip>
+
+<MiembroItem>:
+    text: ""
+    secondary_text: ""
+    asignado: False
+    miembro_id: 0
+
+    md_bg_color: [0.98, 0.98, 1, 1] if root.asignado else [1, 1, 1, 1]
+    elevation: 1
+    radius: [8, 8, 8, 8]
+    padding: [16, 8]
+    spacing: dp(10)
+    ripple_behavior: True
+    
+    canvas.before:
+        Color:
+            rgba: [0.9, 0.9, 0.95, 1] if self.state == 'down' else [0, 0, 0, 0]
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    MDBoxLayout:
+        orientation: 'horizontal'
+        padding: [dp(8), dp(4)]  # Reducido el padding
+        spacing: dp(12)  # Aumentado el espaciado
+
+        MDIcon:
+            icon: "account"
+            size_hint: (None, None)
+            size: (dp(40), dp(40))
+            pos_hint: {'center_y': 0.5}  # Centrado vertical
+            theme_text_color: "Custom"
+            text_color: app.theme_cls.primary_color if root.asignado else [0.5, 0.5, 0.5, 1]
+        
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: dp(2)  # Reducido el espaciado
+            pos_hint: {'center_y': 0.5}  # Centrado vertical
+            
+            MDLabel:
+                text: root.text
+                font_style: 'Subtitle1'
+                theme_text_color: "Primary"
+                bold: root.asignado
+                size_hint_y: None
+                height: self.texture_size[1]
+                
+            MDLabel:
+                text: root.secondary_text
+                theme_text_color: "Secondary"
+                font_style: 'Caption'
+                size_hint_y: None
+                height: self.texture_size[1]
+        
+        MDIconButton:
+            icon: 'check-circle' if root.asignado else 'checkbox-blank-circle-outline'
+            theme_text_color: "Custom"
+            text_color: app.theme_cls.primary_color if root.asignado else [0.5, 0.5, 0.5, 1]
+            pos_hint: {'center_y': 0.5}  # Centrado vertical
+            on_release: root.on_release()
+
+<AsignarFaenaScreen>:
+    name: 'asignar_faena'
+    
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.15, 0.25, 1  # Fondo claro original
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        padding: dp(10)
+        md_bg_color: 0, 0, 0, 0
+        
+        # Barra superior con información de la faena
+        MDCard:
+            size_hint_y: None
+            height: dp(100)  # Aumentado para más espacio
+            padding: dp(16)
+            elevation: 0
+            md_bg_color: 0.90, 0.96, 1, 0.95
+            radius: [10, 10, 10, 10]
+            
+            MDBoxLayout:
+                orientation: 'vertical'
+                spacing: dp(8)
+                
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: dp(8)
+                    size_hint_y: None
+                    height: dp(40)
+                    
+                    MDLabel:
+                        text: root.faena.get('nombre', '') if root.faena else ''
+                        font_style: 'H6'
+                        theme_text_color: "Primary"
+                        size_hint_x: 0.7
+                    
+                    MDLabel:
+                        text: root.faena.get('tipo', '') if root.faena else ''
+                        theme_text_color: "Secondary"
+                        halign: 'right'
+                        size_hint_x: 0.3
+                
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: dp(8)
+                    
+                    MDIcon:
+                        icon: "calendar"
+                        size_hint_x: None
+                        width: dp(24)
+                        theme_text_color: "Secondary"
+                    
+                    MDLabel:
+                        text: f"Fecha: {root.faena.get('fecha_inicio', '')} - {root.faena.get('fecha_fin', '')}" if root.faena else ''
+                        theme_text_color: "Secondary"
+                        font_style: 'Body2'
+        
+        # Filtros
+        MDCard:
+            size_hint_y: None
+            height: dp(80)  
+            padding: [dp(16), dp(8)]
+            spacing: dp(16)  
+            elevation: 0
+            md_bg_color: 0.90, 0.96, 1, 0.95
+            radius: [10, 10, 10, 10]
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: dp(16) 
+                padding: [0, dp(8)]  
+            
+                MDTextField:
+                    id: busqueda
+                    hint_text: "Buscar por nombre o DNI"
+                    mode: "rectangle"
+                    size_hint_x: 0.4
+                    on_text: root.filtrar_miembros(self.text)
+                
+                MDTextField:
+                    id: ubicacion
+                    hint_text: "Filtrar por ubicación"
+                    mode: "rectangle"
+                    size_hint_x: 0.4
+                    on_text: root.filtrar_miembros(busqueda.text, self.text)
+                
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_x: 0.3 
+                    spacing: dp(4)
+                    
+                    MDRaisedButton:
+                        id: chip_filtro
+                        text: 
+                            "Asignados" if root.estado_filtro == root.FILTRO_ASIGNADOS else \
+                            "No Asignados" if root.estado_filtro == root.FILTRO_NO_ASIGNADOS else \
+                            "Todos"
+                        icon_right: 
+                            "check-circle" if root.estado_filtro == root.FILTRO_ASIGNADOS else \
+                            "close-circle" if root.estado_filtro == root.FILTRO_NO_ASIGNADOS else \
+                            "filter-variant"
+                        elevation: 2
+                        md_bg_color: 
+                            app.theme_cls.primary_color if root.estado_filtro == root.FILTRO_ASIGNADOS else \
+                            [0.2, 0.4, 0.7, 1] if root.estado_filtro == root.FILTRO_NO_ASIGNADOS else \
+                            [0.10, 0.32, 0.55, 1]
+                        text_color: [1, 1, 1, 1]
+                        size_hint_x: 0.85
+                        on_release: root.toggle_filtro_asignados()
+
+                    InfoButton:
+                        icon: "information"
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+                        pos_hint: {'center_y': 0.5}
+                        size_hint_x: 0.15
+                        tooltip_text: "Asignados: Muestra solo miembros asignados\nNo Asignados: Muestra solo miembros sin asignar\nTodos: Muestra todos los miembros"
+                        tooltip_bg_color: app.theme_cls.primary_dark
+                        tooltip_font_style: "Caption"
+                        tooltip_radius: [5, 5, 5, 5]
+        
+        # Lista de miembros
+        MDCard:
+            elevation: 0
+            md_bg_color: 0.90, 0.96, 1, 0.95
+            radius: [10, 10, 10, 10]
+            padding: [dp(8), dp(8)] 
+
+            RecycleView:
+                id: rv_miembros
+                viewclass: 'MiembroItem'
+                scroll_type: ['bars']
+                bar_width: dp(4)
+                RecycleBoxLayout:
+                    default_size: None, dp(72)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+                    spacing: dp(4)
+                    padding: [dp(8), dp(8)]  
+        
+        # Barra inferior con botón de confirmación
+        MDCard:
+            size_hint_y: None
+            height: dp(64)
+            padding: [dp(16), dp(8)]
+            spacing: dp(8)
+            elevation: 0
+            md_bg_color: 0.90, 0.96, 1, 0.95
+            radius: [10, 10, 10, 10]
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: dp(8)
+                
+                MDRaisedButton:
+                    text: 'Volver'
+                    icon: 'arrow-left'
+                    md_bg_color: app.theme_cls.primary_color
+                    text_color: 1, 1, 1, 1
+                    size_hint_x: None
+                    width: dp(130)
+                    on_release: app.root.current = 'faenas'
+                    pos_hint: {'center_y': 0.5}
+                Widget:
+                    size_hint_x: 0.2
+                
+                MDLabel:
+                    id: contador_seleccionados
+                    text: "0 miembros asignados"
+                    size_hint_x: 0.4
+                    theme_text_color: "Secondary"
+                    bold: True
+                
+                MDRaisedButton:
+                    text: "Confirmar Asignaciones"
+                    md_bg_color: app.theme_cls.primary_color
+                    on_release: root.confirmar_asignaciones()
