@@ -3,6 +3,7 @@ from kivymd.uix.snackbar import Snackbar, MDSnackbar
 from app.db.conexion import obtener_conexion
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
+from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
 
 class MiembroFormScreen(MDScreen):
     miembro = DictProperty({})
@@ -14,6 +15,15 @@ class MiembroFormScreen(MDScreen):
             self.titulo = "Editar Miembro"
         else:
             self.titulo = "Agregar Miembro"
+        
+        # Actualiza los campos visuales con los datos del miembro
+        self.ids.nombre.text = self.miembro.get("Nombre", "")
+        self.ids.apellido_paterno.text = self.miembro.get("Apellido_Paterno", "")
+        self.ids.apellido_materno.text = self.miembro.get("Apellido_Materno", "")
+        self.ids.dni.text = self.miembro.get("DNI", "")
+        self.ids.correo.text = self.miembro.get("Correo", "")
+        self.ids.direccion.text = self.miembro.get("Dirección", "")
+        self.ids.telefono.text = self.miembro.get("Teléfono", "")
 
     def guardar_miembro(self):
         datos = {
@@ -25,8 +35,11 @@ class MiembroFormScreen(MDScreen):
             "Dirección": self.ids.direccion.text.strip(),
             "Teléfono": self.ids.telefono.text.strip(),
         }
-        if not datos["Nombre"] or not datos["Apellido_Paterno"] or not datos["Apellido_Materno"] or not datos["DNI"]:
-            MDSnackbar(MDLabel(text="Nombre, Apellidos y DNI son obligatorios")).open()
+        
+        # Validar todos los datos usando el validador centralizado
+        es_valido, mensaje_error = ValidacionFormularios.validar_datos_miembro(datos)
+        if not es_valido:
+            UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
             return
 
         conexion = obtener_conexion()
@@ -73,13 +86,3 @@ class MiembroFormScreen(MDScreen):
                 MDSnackbar(MDLabel(text="Error: Verifica que el DNI y correo no estén repetidos.")).open()
             finally:
                 conexion.close()
-
-    def on_pre_enter(self):
-        # Actualiza los campos visuales con los datos del miembro
-        self.ids.nombre.text = self.miembro.get("Nombre", "")
-        self.ids.apellido_paterno.text = self.miembro.get("Apellido_Paterno", "")
-        self.ids.apellido_materno.text = self.miembro.get("Apellido_Materno", "")
-        self.ids.dni.text = self.miembro.get("DNI", "")
-        self.ids.correo.text = self.miembro.get("Correo", "")
-        self.ids.direccion.text = self.miembro.get("Dirección", "")
-        self.ids.telefono.text = self.miembro.get("Teléfono", "")

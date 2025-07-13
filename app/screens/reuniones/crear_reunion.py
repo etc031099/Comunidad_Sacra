@@ -19,6 +19,7 @@ from kivy.metrics import dp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDIconButton
 from .crear_reunion_db import crear_reunion, actualizar_reunion, registrar_asistencias_inasistencia
+from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
 
 class CrearReunionScreen(MDScreen):
 
@@ -109,24 +110,31 @@ class CrearReunionScreen(MDScreen):
 
     def guardar_cambios(self):
         """Guarda los cambios según sea creación o edición"""
-        # Validar campos obligatorios
-        if not all([self.ids.input_fecha.text, self.ids.input_titulo.text]):
-            self.mostrar_popup("Error", "Debes completar todos los campos obligatorios")
+        # Recopilar datos del formulario
+        datos = {
+            "titulo": self.ids.input_titulo.text.strip(),
+            "fecha": self.ids.input_fecha.text.strip(),
+            "hora_inicio": self.ids.input_hora_inicio.text.strip(),
+            "descripcion": self.ids.input_descripcion.text.strip()
+        }
+        
+        # Validar todos los datos usando el validador centralizado
+        es_valido, mensaje_error = ValidacionFormularios.validar_datos_reunion(datos)
+        if not es_valido:
+            UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
             return
         
-        # Validar hora
-        hora_inicio = self.ids.input_hora_inicio.text
-        
-        if not hora_inicio:
-            self.mostrar_popup("Error", "Debes especificar hora de inicio")
-            return
-        
+        # Validación adicional: fecha futura para reuniones
         try:
-            # Convertir a objeto datetime para validación
-            datetime.strptime(hora_inicio, "%H:%M")
+            fecha_reunion = datetime.strptime(datos["fecha"], "%Y-%m-%d").date()
+            fecha_actual = datetime.now().date()
+            
+            if fecha_reunion < fecha_actual:
+                UIValidacionSimplificada.mostrar_error_snackbar("La fecha de la reunión no puede ser en el pasado")
+                return
                 
         except ValueError:
-            self.mostrar_popup("Error", "Formato de hora inválido. Usa HH:MM")
+            UIValidacionSimplificada.mostrar_error_snackbar("Error al procesar la fecha")
             return
         
         # Si pasó todas las validaciones, proceder a guardar

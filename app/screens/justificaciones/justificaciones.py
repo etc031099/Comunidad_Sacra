@@ -29,7 +29,8 @@ from .justificaciones_db import (
     obtener_miembros, obtener_faenas, obtener_reuniones, 
     obtener_fechas_faena, obtener_justificaciones_faena, obtener_justificaciones_reunion,
     obtener_id_registro_faena, obtener_id_registro_reunion,
-    guardar_evidencia, guardar_archivo_evidencia
+    guardar_evidencia, guardar_archivo_evidencia,
+    obtener_fechas_con_justificaciones_faena
 )
 from kivy.properties import StringProperty
 from kivy.uix.scrollview import ScrollView
@@ -43,10 +44,24 @@ class JustificacionesScreen(MDScreen):
         self.directorio_evidencias = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'evidencias')
         if not os.path.exists(self.directorio_evidencias):
             os.makedirs(self.directorio_evidencias)
+        # Enlazar el evento del spinner de fecha si existe
+        Clock.schedule_once(self._bind_fecha_spinner, 0)
+
+    def _bind_fecha_spinner(self, *args):
+        if 'fecha_spinner' in self.ids:
+            self.ids.fecha_spinner.unbind(text=self.on_fecha_changed)  # Evitar duplicados
+            self.ids.fecha_spinner.bind(text=self.on_fecha_changed)
 
     def on_tipo_changed(self, instance, value):
-        # Cargar eventos según tipo
+        """Se ejecuta cuando se cambia el tipo de justificación"""
+        # Limpiar selecciones anteriores
+        self.fecha_seleccionada = None
+        
+        # Limpiar evento seleccionado
         evento_spinner = self.ids.evento_spinner
+        evento_spinner.text = 'Seleccionar Evento'
+        
+        # Cargar eventos según tipo
         if value == 'FAENA':
             eventos = obtener_faenas()
             evento_spinner.values = [f"{e['idFaena']} - {e['nombre']}" for e in eventos]
@@ -55,8 +70,26 @@ class JustificacionesScreen(MDScreen):
             evento_spinner.values = [f"{e['id_reunion']} - {e['titulo']}" for e in eventos]
         else:
             evento_spinner.values = []
-        evento_spinner.text = 'Seleccionar Evento'
+        
+        # Manejar el spinner de fecha
+        self.manejar_spinner_fecha(value)
+        
+        # Limpiar lista de justificaciones
         self.ids.justificaciones_layout.clear_widgets()
+
+    def manejar_spinner_fecha(self, tipo):
+        """Maneja la visibilidad del spinner de fecha según el tipo"""
+        fecha_spinner = self.ids.fecha_spinner
+        if tipo == 'FAENA':
+            fecha_spinner.opacity = 1
+            fecha_spinner.disabled = False
+            fecha_spinner.text = 'Seleccionar Fecha'
+            fecha_spinner.values = []
+        else:
+            fecha_spinner.opacity = 0
+            fecha_spinner.disabled = True
+            fecha_spinner.text = 'Seleccionar Fecha'
+            fecha_spinner.values = []
 
     def on_evento_changed(self, instance, value):
         """Se ejecuta cuando se selecciona un evento"""
@@ -77,54 +110,35 @@ class JustificacionesScreen(MDScreen):
             self.load_justificaciones()
 
     def cargar_fechas_disponibles(self):
-        """Carga las fechas disponibles para la faena seleccionada"""
+        """Carga solo las fechas con justificaciones para la faena seleccionada"""
         evento = self.ids.evento_spinner.text
         if evento == 'Seleccionar Evento':
             return
-            
         try:
             id_faena = int(evento.split(' - ')[0])
-            resultado = obtener_fechas_faena(id_faena)
-            
-            if resultado:
-                fecha_inicio = resultado[0]
-                fecha_fin = resultado[1]
-                
-                if fecha_inicio and fecha_fin:
-                    # Generar lista de fechas entre inicio y fin
-                    from datetime import timedelta
-                    fechas = []
-                    fecha_actual = fecha_inicio
-                    
-                    while fecha_actual <= fecha_fin:
-                        fechas.append(fecha_actual.strftime('%d/%m/%Y'))
-                        fecha_actual += timedelta(days=1)
-                    
-                    # Crear spinner de fechas si no existe
-                    if not hasattr(self, 'fecha_spinner'):
-                        from kivy.uix.spinner import Spinner
-                        self.fecha_spinner = Spinner(
-                            text='Seleccionar Fecha',
-                            values=fechas,
-                            size_hint_y=None,
-                            height=dp(40),
-                            size_hint_x=None,
-                            width=dp(400),
-                            background_color=(0.2, 0.6, 0.86, 1),
-                            color=(1, 1, 1, 1),
-                            pos_hint={"center_x": 0.5}
-                        )
-                        self.fecha_spinner.bind(text=self.on_fecha_changed)
-                        
-                        # Reemplazar el placeholder con el spinner
-                        tipo_card = self.ids.tipo_card
-                        placeholder = self.ids.fecha_spinner_placeholder
-                        tipo_card.remove_widget(placeholder)
-                        tipo_card.add_widget(self.fecha_spinner)
-                    else:
-                        self.fecha_spinner.values = fechas
-                        self.fecha_spinner.text = 'Seleccionar Fecha'
-                        
+            fechas = obtener_fechas_con_justificaciones_faena(id_faena)
+            fecha_spinner = self.ids.fecha_spinner
+            if fechas:
+                fechas_str = [f.strftime('%d/%m/%Y') for f in fechas]
+                fecha_spinner.values = fechas_str
+                fecha_spinner.text = 'Seleccionar Fecha'
+                fecha_spinner.opacity = 1
+                fecha_spinner.disabled = False
+            else:
+                fecha_spinner.values = []
+                fecha_spinner.text = 'Sin justificaciones'
+                fecha_spinner.opacity = 1
+                fecha_spinner.disabled = True
+                self.ids.justificaciones_layout.clear_widgets()
+                # Mostrar mensaje de que no hay justificaciones
+                from kivymd.uix.label import MDLabel
+                self.ids.justificaciones_layout.add_widget(MDLabel(
+                    text="No hay justificaciones en ninguna fecha para esta faena",
+                    theme_text_color="Custom",
+                    text_color=(0.2,0.2,0.2,1),
+                    font_style="Subtitle1",
+                    halign="center"
+                ))
         except Exception as e:
             print(f"Error al cargar fechas: {e}")
             import traceback
@@ -690,37 +704,39 @@ class JustificacionesScreen(MDScreen):
         popup.dismiss()
 
     def save_justificacion(self, data, descripcion, archivo):
-        """Guarda la justificación"""
-        # Validar que los datos necesarios estén presentes
-        if not data.get('nombre'):
-            snackbar = MDSnackbar(
-                MDLabel(
-                    text="Error: Falta información del miembro",
-                    theme_text_color="Custom",
-                    text_color="white",
-                )
-            )
-            snackbar.open()
-            return
-
-        # Validar que exista el nombre del evento según el tipo
-        if 'nombre_faena' not in data and 'nombre_reunion' not in data:
-            snackbar = MDSnackbar(
-                MDLabel(
-                    text="Error: Falta información del evento",
-                    theme_text_color="Custom",
-                    text_color="white",
-                )
-            )
-            snackbar.open()
-            return
-
-        # Obtener tipo de archivo
-        tipo_archivo = None
-        if archivo:
-            tipo_archivo = os.path.splitext(archivo)[1].replace('.', '').lower()
-
+        """Guarda la justificación con validaciones"""
         try:
+            # Validar que los datos necesarios estén presentes
+            if not data.get('nombre'):
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("Error: Falta información del miembro")
+                return
+
+            # Validar que exista el nombre del evento según el tipo
+            if 'nombre_faena' not in data and 'nombre_reunion' not in data:
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("Error: Falta información del evento")
+                return
+
+            # Validar descripción si se proporciona
+            if descripcion and len(descripcion.strip()) < 10:
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("La descripción debe tener al menos 10 caracteres")
+                return
+
+            # Validar archivo si se proporciona
+            if archivo:
+                from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+                es_valido, mensaje_error = ValidacionFormularios.validar_archivo_evidencia(archivo, "Archivo de Evidencia")
+                if not es_valido:
+                    UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+                    return
+
+            # Obtener tipo de archivo
+            tipo_archivo = None
+            if archivo:
+                tipo_archivo = os.path.splitext(archivo)[1].replace('.', '').lower()
+
             # Determinar el tipo de registro y el ID del evento
             tipo_registro = 'FAENA' if 'nombre_faena' in data else 'REUNION'
             id_miembro = data.get('ID')
@@ -733,14 +749,8 @@ class JustificacionesScreen(MDScreen):
                 id_registro = obtener_id_registro_reunion(id_miembro, id_evento)
             
             if not id_registro:
-                snackbar = MDSnackbar(
-                    MDLabel(
-                        text="No existe asistencia para este miembro en el evento seleccionado.",
-                        theme_text_color="Custom",
-                        text_color="white",
-                    )
-                )
-                snackbar.open()
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("No existe asistencia para este miembro en el evento seleccionado.")
                 return
 
             # Guardar archivo si se seleccionó uno
@@ -751,36 +761,18 @@ class JustificacionesScreen(MDScreen):
             # Guardar evidencia en la base de datos
             if guardar_evidencia(tipo_registro, id_registro, descripcion, ruta_archivo, tipo_archivo, data.get('idEvidencia')):
                 self.load_justificaciones()  # Recargar la lista
-                snackbar = MDSnackbar(
-                    MDLabel(
-                        text="Evidencia actualizada correctamente",
-                        theme_text_color="Custom",
-                        text_color="white",
-                    )
-                )
-                snackbar.open()
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("Evidencia actualizada correctamente")
             else:
-                snackbar = MDSnackbar(
-                    MDLabel(
-                        text="Error al guardar la evidencia en la base de datos",
-                        theme_text_color="Custom",
-                        text_color="white",
-                    )
-                )
-                snackbar.open()
+                from app.utils.validacion_simplificada import UIValidacionSimplificada
+                UIValidacionSimplificada.mostrar_error_snackbar("Error al guardar la evidencia en la base de datos")
                 
         except Exception as e:
             print(f"Error al guardar evidencia: {e}")
             import traceback
             traceback.print_exc()
-            snackbar = MDSnackbar(
-                MDLabel(
-                    text=f"Error al guardar evidencia: {str(e)}",
-                    theme_text_color="Custom",
-                    text_color="white",
-                )
-            )
-            snackbar.open()
+            from app.utils.validacion_simplificada import UIValidacionSimplificada
+            UIValidacionSimplificada.mostrar_error_snackbar(f"Error al guardar evidencia: {str(e)}")
 
 class JustificacionItem(BoxLayout):
     nombre_miembro = StringProperty("")
@@ -862,6 +854,32 @@ class JustificacionDialog(BoxLayout):
         
         if justificacion:
             self.load_justificacion_data()
+    
+    def validar_campo(self, campo, valor):
+        """Valida un campo específico en tiempo real"""
+        from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+        
+        # Validar el campo específico
+        es_valido, mensaje_error = ValidacionFormularios.validar_campo_justificacion(campo, valor.strip())
+        
+        # Actualizar la UI del campo
+        if campo == "descripcion":
+            UIValidacionSimplificada.actualizar_campo(self.descripcion_input, es_valido, mensaje_error)
+        elif campo == "miembro":
+            # Para spinners, solo mostrar error en snackbar
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+        elif campo == "evento":
+            # Para spinners, solo mostrar error en snackbar
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+        
+        return es_valido
+
+    def validar_campo_on_focus(self, campo, valor, tiene_foco):
+        """Valida un campo cuando pierde el foco"""
+        if not tiene_foco:  # Solo validar cuando pierde el foco
+            self.validar_campo(campo, valor)
             
     def get_miembros(self):
         try:
@@ -910,34 +928,47 @@ class JustificacionDialog(BoxLayout):
             self.descripcion_input.text = ""
 
     def save_justificacion(self, instance):
-        """Guarda la justificación"""
-        if not self.miembro_spinner.text or not self.evento_spinner.text:
-            snackbar = MDSnackbar(
-                MDLabel(
-                    text="Seleccione un miembro y un evento",
-                    theme_text_color="Custom",
-                    text_color="white",
-                )
-            )
-            snackbar.open()
-            return
-
-        selected_file = self.file_chooser.selection[0] if self.file_chooser.selection else None
-        
-        justificacion_data = {
-            'tipo': self.tipo,
-            'id_miembro': int(self.miembro_spinner.text.split(' - ')[0]),
-            'id_evento': int(self.evento_spinner.text.split(' - ')[0]),
-            'descripcion': self.descripcion_input.text.strip() or None,
-            'archivo': selected_file
-        }
-        
-        if self.justificacion and 'idEvidencia' in self.justificacion:
-            justificacion_data['id'] = self.justificacion['idEvidencia']
+        """Guarda la justificación con validaciones"""
+        try:
+            # Recopilar datos del formulario
+            datos = {
+                "tipo": self.tipo,
+                "miembro": self.miembro_spinner.text,
+                "evento": self.evento_spinner.text,
+                "descripcion": self.descripcion_input.text.strip(),
+                "archivo": self.file_chooser.selection[0] if self.file_chooser.selection else ""
+            }
             
-        if self.on_save:
-            self.on_save(justificacion_data)
-        self.dismiss()
+            # Validar todos los datos usando el validador centralizado
+            from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+            
+            es_valido, mensaje_error = ValidacionFormularios.validar_datos_justificacion(datos)
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+                return
+            
+            # Si pasó todas las validaciones, proceder a guardar
+            justificacion_data = {
+                'tipo': self.tipo,
+                'id_miembro': int(self.miembro_spinner.text.split(' - ')[0]),
+                'id_evento': int(self.evento_spinner.text.split(' - ')[0]),
+                'descripcion': self.descripcion_input.text.strip() or None,
+                'archivo': datos["archivo"]
+            }
+            
+            if self.justificacion and 'idEvidencia' in self.justificacion:
+                justificacion_data['id'] = self.justificacion['idEvidencia']
+            
+            # Mostrar mensaje de éxito
+            UIValidacionSimplificada.mostrar_error_snackbar("Justificación guardada correctamente")
+            
+            if self.on_save:
+                self.on_save(justificacion_data)
+            self.dismiss()
+            
+        except Exception as e:
+            from app.utils.validacion_simplificada import UIValidacionSimplificada
+            UIValidacionSimplificada.mostrar_error_snackbar(f"Error al guardar justificación: {str(e)}")
 
     def dismiss(self, instance=None):
         """Cierra el diálogo"""

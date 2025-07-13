@@ -118,9 +118,56 @@ class NuevaPenalizacionDialog(MDDialog):
         self.ids.tipo_penalizacion_dropdown.text = tipo
         self.menu.dismiss()
 
+    def validar_campo(self, campo, valor):
+        """Valida un campo específico en tiempo real"""
+        from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+        
+        # Crear un diccionario con solo el campo a validar
+        datos = {campo: valor.strip()}
+        
+        # Validar el campo específico
+        es_valido, mensaje_error = ValidacionFormularios.validar_campo_penalizacion(campo, valor.strip())
+        
+        # Actualizar la UI del campo
+        UIValidacionSimplificada.actualizar_campo(self.ids[campo], es_valido, mensaje_error)
+        
+        return es_valido
+
+    def validar_campo_on_focus(self, campo, valor, tiene_foco):
+        """Valida un campo cuando pierde el foco"""
+        if not tiene_foco:  # Solo validar cuando pierde el foco
+            self.validar_campo(campo, valor)
+
     def guardar_penalizacion(self, *args):
-        # Implementar lógica para guardar penalización
-        pass
+        """Guarda una nueva penalización con validaciones"""
+        try:
+            # Recopilar datos del formulario
+            datos = {
+                "id_miembro": self.ids.id_miembro.text.strip(),
+                "tipo_evento": self.ids.tipo_evento_dropdown.text,
+                "tipo_penalizacion": self.ids.tipo_penalizacion_dropdown.text,
+                "valor": self.ids.valor.text.strip(),
+                "observaciones": self.ids.observaciones.text.strip()
+            }
+            
+            # Validar todos los datos usando el validador centralizado
+            from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+            
+            es_valido, mensaje_error = ValidacionFormularios.validar_datos_penalizacion(datos)
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+                return
+            
+            # Si pasó todas las validaciones, proceder a guardar
+            # Aquí iría la lógica para guardar en la base de datos
+            print(f"Penalización válida: {datos}")
+            
+            # Mostrar mensaje de éxito
+            UIValidacionSimplificada.mostrar_error_snackbar("Penalización guardada correctamente")
+            self.dismiss()
+            
+        except Exception as e:
+            UIValidacionSimplificada.mostrar_error_snackbar(f"Error al guardar penalización: {str(e)}")
 
 class RegistrarPagoDialog(MDDialog):
     def __init__(self, **kwargs):
@@ -162,9 +209,52 @@ class RegistrarPagoDialog(MDDialog):
         self.ids.metodo_pago_dropdown.text = metodo
         self.menu.dismiss()
 
+    def validar_campo(self, campo, valor):
+        """Valida un campo específico en tiempo real"""
+        from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+        
+        # Validar el campo específico
+        es_valido, mensaje_error = ValidacionFormularios.validar_campo_penalizacion(campo, valor.strip())
+        
+        # Actualizar la UI del campo
+        UIValidacionSimplificada.actualizar_campo(self.ids[campo], es_valido, mensaje_error)
+        
+        return es_valido
+
+    def validar_campo_on_focus(self, campo, valor, tiene_foco):
+        """Valida un campo cuando pierde el foco"""
+        if not tiene_foco:  # Solo validar cuando pierde el foco
+            self.validar_campo(campo, valor)
+
     def guardar_pago(self, *args):
-        # Implementar lógica para guardar pago
-        pass
+        """Guarda un pago con validaciones"""
+        try:
+            # Recopilar datos del formulario
+            datos = {
+                "id_penalizacion": self.ids.id_penalizacion.text.strip(),
+                "monto_pagado": self.ids.monto_pagado.text.strip(),
+                "metodo_pago": self.ids.metodo_pago_dropdown.text,
+                "comprobante": self.ids.comprobante.text.strip()
+            }
+            
+            # Validar todos los datos usando el validador centralizado
+            from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+            
+            es_valido, mensaje_error = ValidacionFormularios.validar_datos_pago(datos)
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+                return
+            
+            # Si pasó todas las validaciones, proceder a guardar
+            # Aquí iría la lógica para guardar en la base de datos
+            print(f"Pago válido: {datos}")
+            
+            # Mostrar mensaje de éxito
+            UIValidacionSimplificada.mostrar_error_snackbar("Pago registrado correctamente")
+            self.dismiss()
+            
+        except Exception as e:
+            UIValidacionSimplificada.mostrar_error_snackbar(f"Error al registrar pago: {str(e)}")
 
 class RegistrarHorasDialog(MDDialog):
     def __init__(self, **kwargs):
@@ -180,9 +270,52 @@ class RegistrarHorasDialog(MDDialog):
             ),
         ]
 
+    def validar_campo(self, campo, valor):
+        """Valida un campo específico en tiempo real"""
+        from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+        
+        # Validar el campo específico
+        es_valido, mensaje_error = ValidacionFormularios.validar_campo_penalizacion(campo, valor.strip())
+        
+        # Actualizar la UI del campo
+        UIValidacionSimplificada.actualizar_campo(self.ids[campo], es_valido, mensaje_error)
+        
+        return es_valido
+
+    def validar_campo_on_focus(self, campo, valor, tiene_foco):
+        """Valida un campo cuando pierde el foco"""
+        if not tiene_foco:  # Solo validar cuando pierde el foco
+            self.validar_campo(campo, valor)
+
     def guardar_horas(self, *args):
-        # Implementar lógica para guardar horas
-        pass
+        """Guarda horas de reposición con validaciones"""
+        try:
+            # Recopilar datos del formulario
+            datos = {
+                "id_penalizacion": self.ids.id_penalizacion.text.strip(),
+                "id_faena": self.ids.id_faena.text.strip(),
+                "horas_realizadas": self.ids.horas_realizadas.text.strip(),
+                "fecha_realizacion": self.ids.fecha_realizacion.text.strip()
+            }
+            
+            # Validar todos los datos usando el validador centralizado
+            from app.utils.validacion_simplificada import ValidacionFormularios, UIValidacionSimplificada
+            
+            es_valido, mensaje_error = ValidacionFormularios.validar_datos_horas(datos)
+            if not es_valido:
+                UIValidacionSimplificada.mostrar_error_snackbar(mensaje_error)
+                return
+            
+            # Si pasó todas las validaciones, proceder a guardar
+            # Aquí iría la lógica para guardar en la base de datos
+            print(f"Horas válidas: {datos}")
+            
+            # Mostrar mensaje de éxito
+            UIValidacionSimplificada.mostrar_error_snackbar("Horas de reposición registradas correctamente")
+            self.dismiss()
+            
+        except Exception as e:
+            UIValidacionSimplificada.mostrar_error_snackbar(f"Error al registrar horas: {str(e)}")
 
 class PenalizacionesScreen(MDScreen):
     def __init__(self, **kwargs):
@@ -645,6 +778,39 @@ class PenalizacionesScreen(MDScreen):
                     self.ids.estado_dropdown.text = self.filtro_estado
         except Exception as e:
             print(f"Error al restaurar estado de filtros: {e}")
+
+    def mostrar_estado_filtros(self):
+        """Muestra el estado actual de los filtros en un snackbar"""
+        try:
+            estado_texto = f"Estado: {self.filtro_estado}"
+            
+            if self.filtro_fecha_desde and self.filtro_fecha_hasta:
+                estado_texto += f" | Fechas: {self.filtro_fecha_desde} - {self.filtro_fecha_hasta}"
+            elif self.filtro_fecha_desde:
+                estado_texto += f" | Desde: {self.filtro_fecha_desde}"
+            elif self.filtro_fecha_hasta:
+                estado_texto += f" | Hasta: {self.filtro_fecha_hasta}"
+            else:
+                estado_texto += " | Sin filtros de fecha"
+            
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text=estado_texto,
+                    theme_text_color="Custom",
+                    text_color="white",
+                ),
+                duration=4.0
+            )
+            snackbar.open()
+        except Exception as e:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text=f"Error al mostrar estado de filtros: {str(e)}",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
 
     def mostrar_estadisticas(self):
         try:

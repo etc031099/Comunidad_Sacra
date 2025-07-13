@@ -20,7 +20,8 @@ from .asistencia_reunion_db import (
     obtener_miembros_asignados,
     cambiar_estado_miembro,
     guardar_justificacion,
-    marcar_tardanza
+    marcar_tardanza,
+    obtener_estadisticas_asistencia
 )
 
 class AsistenciaScreen(MDScreen):
@@ -170,6 +171,55 @@ class AsistenciaScreen(MDScreen):
         guardar_justificacion(self.selected_reunion_id, miembro_id, descripcion)
         self.cargar_miembros_asignados()
 
+    def guardar_justificacion_multiple(self, *args):
+        """Guarda justificaciones para múltiples miembros seleccionados"""
+        if not self.selected_reunion_id:
+            return
+        
+        # Obtener miembros seleccionados
+        miembros_seleccionados = [m for m in self.miembros_seleccionados.values() if m['selected']]
+        if not miembros_seleccionados:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text="Seleccione al menos un miembro",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
+            return
+        
+        # Obtener descripción
+        descripcion = self.justificacion_field.text.strip()
+        if not descripcion:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text="Ingrese un motivo de justificación",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
+            return
+        
+        # Guardar justificación para cada miembro seleccionado
+        for miembro_info in miembros_seleccionados:
+            miembro_id = next(k for k, v in self.miembros_seleccionados.items() if v == miembro_info)
+            guardar_justificacion(self.selected_reunion_id, miembro_id, descripcion)
+        
+        # Cerrar diálogo y actualizar lista
+        self.cerrar_dialog()
+        self.cargar_miembros_asignados()
+        
+        snackbar = MDSnackbar(
+            MDLabel(
+                text=f"Justificaciones registradas para {len(miembros_seleccionados)} miembro(s)",
+                theme_text_color="Custom",
+                text_color="white",
+            )
+        )
+        snackbar.open()
+
     def marcar_tardanza(self, miembro_id):
         if not self.selected_reunion_id:
             return
@@ -288,7 +338,7 @@ class AsistenciaScreen(MDScreen):
                 ),
                 MDRaisedButton(
                     text="GUARDAR",
-                    on_release=self.guardar_justificacion
+                    on_release=self.guardar_justificacion_multiple
                 ),
             ],
         )

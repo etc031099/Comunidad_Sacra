@@ -84,6 +84,26 @@ def obtener_fechas_faena(id_faena):
             conexion.close()
     return None
 
+def obtener_fechas_con_justificaciones_faena(id_faena):
+    """Devuelve una lista de fechas (date) donde existen justificaciones para la faena dada."""
+    conexion = obtener_conexion()
+    fechas = []
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute('''
+                SELECT DISTINCT afd.fecha_asistencia
+                FROM AsistenciaFaenaDiaria afd
+                WHERE afd.idFaena = ? AND afd.estado_asistencia = 'Justificado'
+                ORDER BY afd.fecha_asistencia
+            ''', (id_faena,))
+            fechas = [row[0] for row in cursor.fetchall()]
+        except Exception as e:
+            logging.error(f"Error al obtener fechas con justificaciones de faena: {e}")
+        finally:
+            conexion.close()
+    return fechas
+
 def obtener_justificaciones_faena(id_faena, fecha_especifica=None):
     """Obtiene las justificaciones de una faena"""
     conexion = obtener_conexion()
@@ -141,14 +161,14 @@ def obtener_justificaciones_reunion(id_reunion):
             query = '''
             SELECT a.id_asistencia, mc.ID, mc.nombre, mc.Apellido_Paterno, mc.Apellido_Materno, 
                    a.estado_asistencia, a.id_reunion, r.titulo as nombre_reunion,
-                   a.fecha_hora as fecha_asistencia, NULL as justificacion, NULL as fecha_actualizacion,
+                   a.fecha_registro as fecha_asistencia, a.justificacion, a.fecha_actualizacion,
                    ej.idEvidencia, ej.ruta_archivo, ej.tipo_archivo, ej.descripcion, ej.fecha_subida
             FROM Asistencia a
             JOIN MiembroComunidad mc ON a.id_comunero = mc.ID
             JOIN Reunion r ON a.id_reunion = r.id_reunion
             LEFT JOIN EvidenciasJustificacion ej ON ej.id_registro = a.id_asistencia AND ej.tipo_registro = 'REUNION'
             WHERE a.id_reunion = ? AND a.estado_asistencia = 'Justificado'
-            ORDER BY a.fecha_hora DESC, mc.Apellido_Paterno, mc.Apellido_Materno, mc.nombre
+            ORDER BY a.fecha_registro DESC, mc.Apellido_Paterno, mc.Apellido_Materno, mc.nombre
             '''
             cursor.execute(query, (id_reunion,))
             

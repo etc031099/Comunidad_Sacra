@@ -342,6 +342,8 @@
         hint_text: "ID del Miembro"
         helper_text: "Ingrese el ID del miembro"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('id_miembro', self.text)
+        on_focus: root.validar_campo_on_focus('id_miembro', self.text, self.focus)
 
     MDDropDownItem:
         id: tipo_evento_dropdown
@@ -358,6 +360,8 @@
         hint_text: "Valor"
         helper_text: "Ingrese el valor de la penalización"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('valor', self.text)
+        on_focus: root.validar_campo_on_focus('valor', self.text, self.focus)
 
     MDTextField:
         id: observaciones
@@ -376,12 +380,16 @@
         hint_text: "ID de la Penalización"
         helper_text: "Ingrese el ID de la penalización"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('id_penalizacion', self.text)
+        on_focus: root.validar_campo_on_focus('id_penalizacion', self.text, self.focus)
 
     MDTextField:
         id: monto_pagado
         hint_text: "Monto Pagado"
         helper_text: "Ingrese el monto pagado"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('monto_pagado', self.text)
+        on_focus: root.validar_campo_on_focus('monto_pagado', self.text, self.focus)
 
     MDDropDownItem:
         id: metodo_pago_dropdown
@@ -405,24 +413,32 @@
         hint_text: "ID de la Penalización"
         helper_text: "Ingrese el ID de la penalización"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('id_penalizacion', self.text)
+        on_focus: root.validar_campo_on_focus('id_penalizacion', self.text, self.focus)
 
     MDTextField:
         id: id_faena
         hint_text: "ID de la Faena"
         helper_text: "Ingrese el ID de la faena"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('id_faena', self.text)
+        on_focus: root.validar_campo_on_focus('id_faena', self.text, self.focus)
 
     MDTextField:
         id: horas_realizadas
         hint_text: "Horas Realizadas"
         helper_text: "Ingrese las horas realizadas"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('horas_realizadas', self.text)
+        on_focus: root.validar_campo_on_focus('horas_realizadas', self.text, self.focus)
 
     MDTextField:
         id: fecha_realizacion
         hint_text: "Fecha de Realización"
         helper_text: "Ingrese la fecha de realización"
         helper_text_mode: "on_error"
+        on_text_validate: root.validar_campo('fecha_realizacion', self.text)
+        on_focus: root.validar_campo_on_focus('fecha_realizacion', self.text, self.focus)
 
 <NuevaPenalizacionDialog>:
     title: "Nueva Penalización"
