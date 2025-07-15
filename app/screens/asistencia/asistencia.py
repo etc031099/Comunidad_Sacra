@@ -220,11 +220,36 @@ class AsistenciaScreen(MDScreen):
         )
         snackbar.open()
 
-    def marcar_tardanza(self, miembro_id):
+    def marcar_tardanza(self, miembro_id=None):
         if not self.selected_reunion_id:
             return
-        marcar_tardanza(self.selected_reunion_id, miembro_id)
+        if miembro_id is not None:
+            marcar_tardanza(self.selected_reunion_id, miembro_id)
+            self.cargar_miembros_asignados()
+            return
+        # Si no se pasa miembro_id, marcar a todos los ausentes
+        miembros_ausentes = [m for m in self.miembros_asignados if m['estado_asistencia'] == 'Ausente']
+        if not miembros_ausentes:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text="No hay miembros ausentes para marcar como tardanza",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
+            return
+        for miembro in miembros_ausentes:
+            marcar_tardanza(self.selected_reunion_id, miembro['ID'])
         self.cargar_miembros_asignados()
+        snackbar = MDSnackbar(
+            MDLabel(
+                text="Tardanza marcada para todos los ausentes.",
+                theme_text_color="Custom",
+                text_color="white",
+            )
+        )
+        snackbar.open()
 
     def volver_asistencia_menu(self):
         self.manager.transition.direction = 'right'

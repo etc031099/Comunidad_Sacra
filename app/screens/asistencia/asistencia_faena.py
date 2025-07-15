@@ -22,7 +22,8 @@ from .asistencia_faena_db import (
     obtener_miembros_asignados,
     obtener_asistencias_fecha,
     guardar_justificacion,
-    marcar_tardanza
+    marcar_tardanza,
+    marcar_estado_asistencia
 )
 
 def format_date_safely(d, fmt='%d/%m/%Y'):
@@ -40,6 +41,7 @@ class AsistenciaFaenaScreen(MDScreen):
         super().__init__(**kwargs)
         self.dialog = None
         self.dropdown_menu = None
+        self.miembros_seleccionados = {}  # Inicialización para evitar AttributeError
         
     def on_enter(self):
         """Se ejecuta cuando se entra a la pantalla"""
@@ -315,7 +317,7 @@ class AsistenciaFaenaScreen(MDScreen):
         self.actualizar_lista_miembros(miembros_filtrados)
     
     def cambiar_estado_miembro(self, miembro_id):
-        """Cambia el estado de asistencia de un miembro"""
+        """Cambia el estado de asistencia de un miembro alternando entre 'Presente' y 'Ausente'"""
         if not self.selected_faena_id:
             snackbar = MDSnackbar(MDLabel(text="Primero debe seleccionar una faena."))
             snackbar.open()
@@ -334,33 +336,17 @@ class AsistenciaFaenaScreen(MDScreen):
         
         estado_actual = miembro_actual['estado_asistencia'] or 'Sin registrar'
         
-        if estado_actual in ['Tardanza', 'Justificado']:
-            menu_items = [
-                {
-                    "text": "Resetear estado",
-                    "viewclass": "OneLineListItem",
-                    "on_release": lambda: self.resetear_estado_miembro(miembro_id),
-                }
-            ]
-            
-            for item in self.ids.rv_miembros.layout_manager.children:
-                if hasattr(item, 'miembro_id') and item.miembro_id == miembro_id:
-                    self.dropdown_menu_miembro = MDDropdownMenu(
-                        caller=item,
-                        items=menu_items,
-                        width_mult=3,
-                    )
-                    self.dropdown_menu_miembro.open()
-                    return
-            
-            snackbar = MDSnackbar(MDLabel(text=f"No se puede cambiar directamente un estado {estado_actual}. Use 'Resetear'."))
-            snackbar.open()
-            return
-            
-        presente = estado_actual != 'Presente'
-        fecha_asistencia = self.fecha_seleccionada
+        # Alternar entre 'Presente' y 'Ausente'
+        if estado_actual == 'Presente':
+            nuevo_estado = 'Ausente'
+        else:
+            nuevo_estado = 'Presente'
         
-        self.guardar_justificacion(miembro_id, fecha_asistencia, "")
+        fecha_asistencia = self.fecha_seleccionada
+        marcar_estado_asistencia(self.selected_faena_id, miembro_id, fecha_asistencia, nuevo_estado)
+        
+        # Recargar la lista para actualizar la UI
+        self.cargar_asistencias_fecha(fecha_asistencia)
 
     def mostrar_dialog_justificacion(self):
         """Muestra dialog para justificar ausencias individualmente"""
@@ -678,13 +664,31 @@ class AsistenciaFaenaScreen(MDScreen):
         )
         self.dialog.open()
     
-    def marcar_tardanza(self, miembro_id, fecha):
-        """Marca como tardanza a los miembros que están como 'Ausente'"""
+    def marcar_tardanza(self, miembro_id=None, fecha=None):
+        """Marca como tardanza a los miembros que están como 'Ausente' en la fecha seleccionada o a un miembro específico si se pasan argumentos."""
         if not self.selected_faena_id:
             return
-        
-        marcar_tardanza(self.selected_faena_id, miembro_id, fecha)
-        self.cargar_asistencias_fecha(fecha)
+        # Si se pasan los argumentos, marcar solo ese miembro
+        if miembro_id is not None and fecha is not None:
+            marcar_tardanza(self.selected_faena_id, miembro_id, fecha)
+            self.cargar_asistencias_fecha(fecha)
+            return
+        # Si no, marcar a todos los ausentes en la fecha seleccionada
+        fecha_asistencia = getattr(self, 'fecha_seleccionada', None)
+        if not fecha_asistencia:
+            snackbar = MDSnackbar(MDLabel(text="Seleccione una fecha de asistencia para continuar."))
+            snackbar.open()
+            return
+        miembros_ausentes = [m for m in self.miembros_asignados if m['estado_asistencia'] == 'Ausente']
+        if not miembros_ausentes:
+            snackbar = MDSnackbar(MDLabel(text="No hay miembros ausentes para marcar como tardanza."))
+            snackbar.open()
+            return
+        for miembro in miembros_ausentes:
+            marcar_tardanza(self.selected_faena_id, miembro['ID'], fecha_asistencia)
+        self.cargar_asistencias_fecha(fecha_asistencia)
+        snackbar = MDSnackbar(MDLabel(text="Tardanza marcada para todos los ausentes."))
+        snackbar.open()
     
     def resetear_estado_miembro(self, miembro_id):
         """Resetea el estado de un miembro a 'Sin registrar'"""

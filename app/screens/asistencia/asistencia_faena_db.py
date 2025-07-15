@@ -9,7 +9,7 @@ def obtener_faenas():
             cursor = conexion.cursor()
             query = """
                 SELECT idFaena, nombre, descripcion, fecha_inicio, fecha_fin, 
-                       ubicacion, estado, tipo 
+                    ubicacion, estado, tipo 
                 FROM Faena 
                 ORDER BY fecha_inicio DESC
             """
@@ -130,6 +130,33 @@ def marcar_tardanza(id_faena, miembro_id, fecha):
                     fecha_actualizacion = GETDATE()
                 WHERE idFaena = ? AND idMiembro = ? AND fecha_asistencia = ?
             """, (id_faena, miembro_id, fecha))
+            conexion.commit()
+        finally:
+            conexion.close() 
+
+def marcar_estado_asistencia(id_faena, miembro_id, fecha, estado):
+    """Marca el estado de asistencia ('Presente' o 'Ausente') para un miembro en una faena y fecha dada."""
+    conexion = obtener_conexion()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            # Verificar si ya existe un registro para ese miembro, faena y fecha
+            cursor.execute("""
+                SELECT COUNT(*) FROM AsistenciaFaenaDiaria 
+                WHERE idFaena = ? AND idMiembro = ? AND fecha_asistencia = ?
+            """, (id_faena, miembro_id, fecha))
+            existe = cursor.fetchone()[0]
+            if existe:
+                cursor.execute("""
+                    UPDATE AsistenciaFaenaDiaria 
+                    SET estado_asistencia = ?, fecha_actualizacion = GETDATE()
+                    WHERE idFaena = ? AND idMiembro = ? AND fecha_asistencia = ?
+                """, (estado, id_faena, miembro_id, fecha))
+            else:
+                cursor.execute("""
+                    INSERT INTO AsistenciaFaenaDiaria (idFaena, idMiembro, fecha_asistencia, estado_asistencia, fecha_actualizacion)
+                    VALUES (?, ?, ?, ?, GETDATE())
+                """, (id_faena, miembro_id, fecha, estado))
             conexion.commit()
         finally:
             conexion.close() 
