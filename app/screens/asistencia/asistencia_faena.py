@@ -491,7 +491,7 @@ class AsistenciaFaenaScreen(MDScreen):
                 ),
                 MDRaisedButton(
                     text="GUARDAR",
-                    on_release=self.guardar_justificacion
+                    on_release=self.guardar_justificacion_multiple
                 ),
             ],
         )
@@ -791,3 +791,47 @@ class AsistenciaFaenaScreen(MDScreen):
             )
             snackbar.open()
             return
+
+    def guardar_justificacion_multiple(self, *args):
+        """Guarda la justificación para todos los miembros seleccionados"""
+        if not self.selected_faena_id:
+            return
+
+        miembros_seleccionados = [m for m in self.miembros_asignados if self.miembros_seleccionados.get(m['ID'], {}).get('selected', False)]
+        if not miembros_seleccionados:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text="Seleccione al menos un miembro",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
+            return
+
+        descripcion = self.justificacion_field.text.strip()
+        if not descripcion:
+            snackbar = MDSnackbar(
+                MDLabel(
+                    text="Ingrese un motivo de justificación",
+                    theme_text_color="Custom",
+                    text_color="white",
+                )
+            )
+            snackbar.open()
+            return
+
+        fecha_asistencia = getattr(self, 'fecha_seleccionada', datetime.now().date())
+
+        for miembro in miembros_seleccionados:
+            self.guardar_justificacion(miembro['ID'], fecha_asistencia, descripcion)
+        self.cargar_asistencias_fecha(fecha_asistencia)
+        self.cerrar_dialog()
+        snackbar = MDSnackbar(
+            MDLabel(
+                text=f"Justificación registrada para {len(miembros_seleccionados)} miembro(s)",
+                theme_text_color="Custom",
+                text_color="white",
+            )
+        )
+        snackbar.open()

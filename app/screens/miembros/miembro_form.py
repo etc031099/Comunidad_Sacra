@@ -25,6 +25,11 @@ class MiembroFormScreen(MDScreen):
         self.ids.direccion.text = self.miembro.get("Dirección", "")
         self.ids.telefono.text = self.miembro.get("Teléfono", "")
 
+        # Validación en tiempo real para el campo teléfono
+        from app.utils.componentes_validacion import ValidadorUI
+        from app.utils.validadores import Validador
+        ValidadorUI.validar_campo_en_tiempo_real(self.ids.telefono, Validador.validar_telefono, False)
+
     def guardar_miembro(self):
         datos = {
             "Nombre": self.ids.nombre.text.strip(),

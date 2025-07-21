@@ -25,10 +25,11 @@ class ConnectionPool:
         try:
             return pyodbc.connect(
                 'DRIVER={ODBC Driver 17 for SQL Server};'
-                'SERVER=L_PC\SQLEXPRESS;'
+                'SERVER=L_PC\\SSAS2022;'
                 'DATABASE=COMUNIDADSACRA1;'
-                'Trusted_Connection=yes;'
-                'Connection Timeout=10;'  # Timeout de 10 segundos
+                'UID=sa;'
+                'PWD=SSAS2022;'
+                'Connection Timeout=10;'
             )
         except Exception as e:
             print(f"Error al crear conexión: {e}")
@@ -97,9 +98,10 @@ def obtener_conexion_legacy():
     try:
         conexion = pyodbc.connect(
             'DRIVER={ODBC Driver 17 for SQL Server};'
-            'SERVER=L_PC\SQLEXPRESS;'
+            'SERVER=L_PC\\SSAS2022;'
             'DATABASE=COMUNIDADSACRA1;'
-            'Trusted_Connection=yes;'
+            'UID=sa;'
+            'PWD=SSAS2022;'
             'Connection Timeout=10;'
         )
         return conexion

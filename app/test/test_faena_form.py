@@ -1,29 +1,23 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from kivy.lang import Builder
-from kivymd.app import MDApp
-from app.screens.faenas.faena_form import FaenaFormScreen
 import unittest
-from kivy.tests.common import GraphicUnitTest
+from app.screens.faenas.faena_form_db import crear_faena, existe_faena_nombre_fecha
 
-# Carga el kv de faena_form
-Builder.load_file("app/kv/faena_form.kv")
-
-class TestFaenaFormApp(MDApp):
-    def build(self):
-        self.form_screen = FaenaFormScreen()
-        return self.form_screen
-
-    def on_start(self):
-        # Simula la entrada al formulario
-        self.form_screen.on_pre_enter()
-        # Comprueba que los campos principales existen
-        assert hasattr(self.form_screen.ids, "input_nombre")
-        assert hasattr(self.form_screen.ids, "input_fecha_inicio")
-        assert hasattr(self.form_screen.ids, "radio_ordinaria")
-        assert hasattr(self.form_screen.ids, "radio_extraordinaria")
-        print("Todos los campos principales existen en el formulario.")
+class TestFaenaForm(unittest.TestCase):
+    def test_crear_faena_y_verificar_duplicado(self):
+        datos = {
+            "nombre": "Faena Unittest",
+            "descripcion": "Prueba automática",
+            "fecha_inicio": "2024-07-01 08:00:00",
+            "fecha_fin": "2024-07-01 12:00:00",
+            "ubicacion": "Parque",
+            "estado": "Pendiente",
+            "tipo": "Ordinaria",
+            "tipoJornada": "Mañana",
+            "motivoExtra": ""
+        }
+        crear_faena(datos)
+        self.assertTrue(existe_faena_nombre_fecha("Faena Unittest", "2024-07-01 08:00:00"))
+        # Intentar crear duplicado
+        self.assertTrue(existe_faena_nombre_fecha("Faena Unittest", "2024-07-01 08:00:00"))
 
 if __name__ == "__main__":
-    TestFaenaFormApp().run()
+    unittest.main()

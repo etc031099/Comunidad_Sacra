@@ -230,6 +230,14 @@ class ValidacionFormularios:
         if not es_valido:
             return False, mensaje
         
+        # Validar teléfono (opcional, pero si se ingresa debe ser válido de Perú)
+        telefono = datos.get("Teléfono", "").strip()
+        if telefono:
+            import re
+            telefono_limpio = re.sub(r'[\s\-\(\)]', '', telefono)
+            if not re.match(r'^\d{7,9}$', telefono_limpio):
+                return False, "El teléfono debe tener 7 a 9 dígitos numéricos (Perú) o dejarse en blanco"
+        
         return True, ""
     
     @staticmethod

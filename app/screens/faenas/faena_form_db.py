@@ -76,3 +76,17 @@ def actualizar_faena(id_faena, datos):
             conexion.commit()
         finally:
             conexion.close() 
+
+def existe_faena_nombre_fecha(nombre, fecha_inicio):
+    conexion = obtener_conexion()
+    existe = False
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) FROM Faena WHERE nombre = ? AND fecha_inicio = ?
+            """, (nombre, fecha_inicio))
+            existe = cursor.fetchone()[0] > 0
+        finally:
+            conexion.close()
+    return existe 

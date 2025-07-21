@@ -1,22 +1,13 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from kivy.lang import Builder
-from kivymd.app import MDApp
-from app.screens.faenas.faenas import FaenasScreen  # Ajusta el import si tu estructura cambia
 import unittest
-from kivy.tests.common import GraphicUnitTest
+from app.screens.faenas.faenas_db import obtener_faenas
 
-# Carga el kv de faenas
-Builder.load_file("app/kv/faenas.kv")  # Ajusta la ruta si es necesario
-
-class TestFaenasApp(MDApp):
-    def build(self):
-        self.faenas_screen = FaenasScreen()
-        return self.faenas_screen
-
-    def on_start(self):
-        self.faenas_screen.cargar_faenas()
+class TestFaenas(unittest.TestCase):
+    def test_obtener_faenas(self):
+        faenas = obtener_faenas()
+        self.assertIsInstance(faenas, list)
+        if faenas:
+            self.assertIn("idFaena", faenas[0])
+            self.assertIn("nombre", faenas[0])
 
 if __name__ == "__main__":
-    TestFaenasApp().run()
+    unittest.main()
